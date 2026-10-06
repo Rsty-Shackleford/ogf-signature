@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OGF Signature Builder</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f0f1f2; --surface: #ffffff; --ink: #0b0c0e; --body: #26292d; --mid: #62666c; --soft: #8b8e93;
+    --rule: #d5d7da; --rule-strong: #b3b6bb; --accent: #1f7fc4; --accent-ink: #17629b; --accent-soft: #e4f0fa;
+    --hero: #000000; --hero-ink: #ffffff; --hero-sub: #d5d7da; --hero-soft: #8b8e93; --hero-rule: #383b40; --hero-accent: #4ba6e8;
+    --orange: #ff8d2a; --navy: #0b3453; --lblue: #92bfd4;
+    --focus: #4ba6e8;
+    --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+    --text: "Inter", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0b0c0e; --surface: #15171a; --ink: #f0f1f2; --body: #d5d7da; --mid: #9a9da2; --soft: #8b8e93;
+      --rule: #2a2d31; --rule-strong: #383b40; --accent: #4ba6e8; --accent-ink: #4ba6e8; --accent-soft: #14283a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0b0c0e; --surface: #15171a; --ink: #f0f1f2; --body: #d5d7da; --mid: #9a9da2; --soft: #8b8e93;
+    --rule: #2a2d31; --rule-strong: #383b40; --accent: #4ba6e8; --accent-ink: #4ba6e8; --accent-soft: #14283a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  img { max-width: 100%; }
+  .wrap { max-width: 1180px; margin-inline: auto; padding-inline: 16px; }
+  .eyebrow { font-family: var(--display); font-weight: 500; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; }
+
+  /* hero: black band, steel rule, the family strip */
+  .hero { background: var(--hero); color: var(--hero-ink); border-bottom: 3px solid var(--hero-accent); }
+  .hero .wrap { padding-block: 36px 34px; display: grid; gap: 26px; }
+  .hero .eyebrow { color: var(--hero-soft); }
+  .hero h1 { font-family: var(--display); font-weight: 700; font-size: clamp(40px, 7vw, 68px); line-height: .95; margin: 8px 0 14px; letter-spacing: -.005em; text-transform: uppercase; text-wrap: balance; }
+  .hero h1 b { color: var(--hero-accent); font-weight: 700; }
+  .hero p { margin: 0; max-width: 56ch; color: var(--hero-sub); font-size: 15px; }
+  .family { display: flex; flex-wrap: wrap; align-items: center; gap: 22px 0; border-top: 1px solid var(--hero-rule); padding-top: 22px; }
+  .family div { display: flex; align-items: center; padding: 0 28px; border-left: 1px solid var(--hero-rule); }
+  .family div:first-child { padding-left: 0; border-left: 0; }
+  .family img { display: block; height: 34px; width: auto; }
+  .family img.badge { height: 78px; }
+  .family img.ogf { height: 40px; }
+
+  /* body grid */
+  main .wrap { padding-block: 34px 10px; display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 900px) { main .wrap { grid-template-columns: 1fr; } }
+  section.panel { background: var(--surface); border: 1px solid var(--rule); }
+  .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 20px 12px; border-bottom: 1px solid var(--rule); }
+  .panel-head .eyebrow { color: var(--accent-ink); }
+  .panel-head h2 { font-family: var(--display); font-weight: 600; font-size: 24px; line-height: 1; margin: 6px 0 0; text-transform: uppercase; letter-spacing: .01em; }
+  .panel-body { padding: 18px 20px 20px; }
+
+  /* form */
+  .seg { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--rule-strong); }
+  .seg button { appearance: none; background: transparent; border: 0; border-left: 1px solid var(--rule-strong); color: var(--mid); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; padding: 11px 6px; cursor: pointer; display: grid; gap: 6px; justify-items: center; }
+  .seg button:first-child { border-left: 0; }
+  .seg button i { display: block; width: 26px; height: 4px; background: var(--rule-strong); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .seg button[aria-pressed="true"] i { background: var(--seg-accent); }
+  .seg button:focus-visible, .btn:focus-visible, .tab:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .field { display: grid; gap: 5px; margin-top: 14px; }
+  .field label { font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); }
+  .field label small { font-family: var(--text); font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--soft); margin-left: 6px; }
+  .field input { font: 500 14px/1.3 var(--text); color: var(--ink); background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 0; padding: 9px 11px; width: 100%; }
+  .field input::placeholder { color: var(--soft); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 420px) { .two { grid-template-columns: 1fr; } }
+  .note { color: var(--mid); font-size: 12.5px; margin: 14px 0 0; }
+  .imgmode { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--rule); }
+  .imgmode .radio { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; margin-top: 10px; cursor: pointer; }
+  .imgmode .radio input { margin: 3px 0 0; accent-color: var(--accent); }
+  .imgmode .radio b { display: block; font-weight: 600; color: var(--ink); }
+  .imgmode .radio span { color: var(--mid); font-size: 12.5px; }
+
+  /* preview */
+  .pv-tools { display: flex; align-items: center; gap: 10px; }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--mid); cursor: pointer; }
+  .toggle input { accent-color: var(--accent); margin: 0; }
+  .email { background: #ffffff; color: #0b0c0e; border: 1px solid var(--rule); padding: 26px 28px 24px; overflow-x: auto; }
+  .email.dark { background: #1f1f1f; }
+  .email .from { font-family: var(--text); font-size: 13px; color: #26292d; margin: 0 0 22px; }
+  .email.dark .from { color: #d5d7da; }
+  .email.dark #preview td { color: #e3e5e8 !important; }
+  .email.dark #preview td[style*="color:#62666c"], .email.dark #preview td[style*="color:#8b8e93"] { color: #9a9da2 !important; }
+  .email.dark #preview a { color: #4ba6e8 !important; }
+  .email.dark #preview a[style*="color:#0b0c0e"] { color: #e3e5e8 !important; }
+  .email.dark #preview span { color: #4ba6e8 !important; }
+  .email.dark #preview span[style*="color:#8b8e93"] { color: #9a9da2 !important; }
+  .email.dark #preview td[style*="border-top:1px solid"] { border-top-color: #383b40 !important; }
+  .email .from em { color: #8b8e93; font-style: normal; }
+
+  /* install */
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .btn { appearance: none; font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; padding: 11px 18px; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .btn.primary { background: var(--ink); color: var(--bg); }
+  .btn.accent { border-color: var(--accent); color: var(--accent-ink); }
+  .btn svg { width: 15px; height: 15px; }
+  .tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--rule); }
+  .tab { appearance: none; background: transparent; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 9px 12px; font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--mid); cursor: pointer; }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .tabpanel { padding-top: 16px; }
+  .tabpanel[hidden] { display: none; }
+  .tabpanel h3 { font-family: var(--display); font-weight: 600; font-size: 18px; margin: 0 0 4px; text-transform: uppercase; letter-spacing: .02em; }
+  .tabpanel p { margin: 0 0 10px; color: var(--body); max-width: 68ch; }
+  .tabpanel ol { margin: 0; padding-left: 22px; color: var(--body); max-width: 68ch; }
+  .tabpanel li { margin: 4px 0; }
+  .tabpanel li::marker { font-family: var(--display); font-weight: 700; color: var(--accent-ink); }
+  .tabpanel code, .tabpanel kbd { font: 500 12.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: var(--bg); border: 1px solid var(--rule); padding: 2px 5px; }
+  .tip { border-left: 3px solid var(--accent); padding: 8px 12px; background: var(--accent-soft); color: var(--body); margin-top: 12px; font-size: 13px; max-width: 68ch; }
+
+  /* palette */
+  .palette .wrap { padding-block: 10px 26px; display: block; }
+  .palette-inner { border-top: 1px solid var(--rule); padding-top: 22px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr); gap: 20px 40px; align-items: start; }
+  @media (max-width: 900px) { .palette-inner { grid-template-columns: 1fr; } }
+  .palette h2 { font-family: var(--display); font-weight: 600; font-size: 26px; line-height: 1; margin: 6px 0 10px; text-transform: uppercase; }
+  .palette p { margin: 0; color: var(--body); max-width: 50ch; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 12px; }
+  .sw { border: 1px solid var(--rule); background: var(--surface); }
+  .sw i { display: block; height: 54px; }
+  .sw div { padding: 8px 10px 9px; }
+  .sw b { display: block; font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
+  .sw span { display: block; font: 500 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--mid); }
+  .sw small { display: block; color: var(--soft); font-size: 11.5px; line-height: 1.35; margin-top: 3px; }
+
+  footer { background: var(--hero); color: var(--hero-soft); }
+  footer .wrap { padding-block: 16px; display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  footer span { border-left: 1px solid var(--hero-rule); padding-left: 22px; }
+  footer span:first-child { border-left: 0; padding-left: 0; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--bg); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; padding: 11px 18px; opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; max-width: calc(100vw - 32px); text-align: center; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">OGF Manufacturing · Fearless · Crossroads Diesel</div>
+      <h1>One family.<br>One signature. <b>Three marks.</b></h1>
+      <p>Pick your division, or <b style="color:var(--hero-ink);font-weight:500">Both</b> if you cover the whole family, fill in the blanks, and paste the result into Outlook, Thunderbird or Gmail. Same layout for everyone, your division's mark and accent colour, and "A division of" with the OGF mark underneath to tie it together.</p>
+    </div>
+    <div class="family" aria-label="The three marks">
+      <div><img class="ogf" src="/*__HERO_OGF__*/" alt="OGF Manufacturing"></div>
+      <div><img src="/*__HERO_FEARLESS__*/" alt="Fearless Manufacturing"></div>
+      <div><img class="badge" src="/*__HERO_CROSSROADS__*/" alt="Crossroads Diesel"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section class="panel" aria-labelledby="h-details">
+      <div class="panel-head">
+        <div><div class="eyebrow">Step 1</div><h2 id="h-details">Your details</h2></div>
+      </div>
+      <div class="panel-body">
+        <div class="seg" role="group" aria-label="Division" id="seg">
+          <button type="button" data-div="fearless" aria-pressed="true" style="--seg-accent:#4ba6e8"><i></i>Fearless</button>
+          <button type="button" data-div="crossroads" aria-pressed="false" style="--seg-accent:#ff8d2a"><i></i>Crossroads</button>
+          <button type="button" data-div="both" aria-pressed="false" style="--seg-accent:#4ba6e8"><i></i>Both</button>
+          <button type="button" data-div="ogf" aria-pressed="false" style="--seg-accent:#4ba6e8"><i></i>OGF</button>
+        </div>
+
+        <div class="field"><label for="f-name">Full name</label><input id="f-name" type="text" autocomplete="name" placeholder="First Last"></div>
+        <div class="field"><label for="f-title">Title</label><input id="f-title" type="text" autocomplete="organization-title" placeholder="Shop Manager"></div>
+        <div class="two">
+          <div class="field"><label for="f-mobile">Mobile <small>optional</small></label><input id="f-mobile" type="tel" autocomplete="tel" placeholder="(432) 555-0100"></div>
+          <div class="field"><label for="f-office">Office <small>optional</small></label><input id="f-office" type="tel" placeholder="(432) 631-0050"></div>
+        </div>
+        <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" autocomplete="email" placeholder="you@company.com"></div>
+        <div class="field"><label for="f-web">Website <small>optional</small></label><input id="f-web" type="text" placeholder="www.company.com"></div>
+        <div class="field"><label for="f-address">Address <small>optional</small></label><input id="f-address" type="text" placeholder="Street · City, TX 00000"></div>
+        <p class="note" id="example-note">Example details are shown. Replace them with yours. Your entries stay in this browser only.</p>
+
+        <div class="imgmode">
+          <div class="eyebrow" style="color:var(--accent-ink)">Logo images</div>
+          <label class="radio"><input type="radio" name="imgmode" value="hosted" id="mode-hosted" checked><div><b>Hosted on the web (Outlook, Gmail)</b><span>The signature links to the logo files at the address below, which is already set up. Everyone's mail client fetches them from there.</span></div></label>
+          <div class="field" style="margin-left:28px"><label for="f-imgbase">Image folder URL</label><input id="f-imgbase" type="url" placeholder="https://rsty-shackleford.github.io/ogf-signature/img/"></div>
+          <label class="radio"><input type="radio" name="imgmode" value="embedded" id="mode-embedded"><div><b>Embedded in the signature (Thunderbird, Apple Mail)</b><span>The logo files are baked into the HTML itself. Nothing to host, but Gmail refuses embedded images and some Outlook versions turn them into attachments.</span></div></label>
+          <div class="eyebrow" style="color:var(--accent-ink);margin-top:20px">Logo background</div>
+          <label class="radio"><input type="radio" name="imgbg" value="transparent" id="bg-transparent" checked><div><b>Transparent</b><span>Clean on a white message. Dark-mode mail clients lighten the text but leave images alone, so the black wordmarks lose contrast there.</span></div></label>
+          <label class="radio"><input type="radio" name="imgbg" value="tile" id="bg-tile"><div><b>White panel</b><span>Each logo sits on a small white panel, so it stays readable in dark mode at the cost of a visible box there. Compare with the dark preview.</span></div></label>
+        </div>
+      </div>
+    </section>
+
+    <div style="display:grid;gap:28px;min-width:0">
+      <section class="panel" aria-labelledby="h-preview">
+        <div class="panel-head">
+          <div><div class="eyebrow">Step 2</div><h2 id="h-preview">Preview</h2></div>
+          <div class="pv-tools"><label class="toggle"><input type="checkbox" id="pv-dark"> Dark mail client</label></div>
+        </div>
+        <div class="panel-body">
+          <div class="email" id="email">
+            <p class="from"><em>From:</em> <span id="pv-from">you</span> &nbsp; <em>Subject:</em> Re: Tuesday's pump</p>
+            <div id="preview"></div>
+          </div>
+          <p class="note" id="dark-note" hidden>Simulated: dark-mode clients lighten your text and leave the images as they are. Switch <b>Logo background</b> to compare.</p>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-install">
+        <div class="panel-head">
+          <div><div class="eyebrow">Step 3</div><h2 id="h-install">Install it</h2></div>
+        </div>
+        <div class="panel-body">
+          <div class="actions">
+            <button type="button" class="btn primary" id="copy-rich"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="5" width="9" height="9"/><path d="M11 5V2H2v9h3"/></svg>Copy signature</button>
+            <button type="button" class="btn" id="copy-html">Copy HTML source</button>
+            <button type="button" class="btn accent" id="download" hidden>Download .html</button>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Mail client">
+            <button class="tab" role="tab" aria-selected="true" aria-controls="t-outlook" id="tab-outlook">Outlook (Windows)</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="t-newoutlook" id="tab-newoutlook">New Outlook &amp; web</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="t-mac" id="tab-mac">Outlook (Mac)</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="t-tb" id="tab-tb">Thunderbird</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="t-gmail" id="tab-gmail">Gmail</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="t-all" id="tab-all">Everyone at once</button>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="t-outlook" aria-labelledby="tab-outlook">
+            <h3>Classic Outlook for Windows</h3>
+            <p>Outlook cannot load a signature from a web address. You paste the rendered signature instead, which keeps the table, colours and logo.</p>
+            <ol>
+              <li>Set <b>Logo images</b> to <b>Hosted</b> and check the folder URL, then click <b>Copy signature</b>.</li>
+              <li>In Outlook: <b>File → Options → Mail → Signatures…</b></li>
+              <li>Click <b>New</b>, name it (for example <code>Fearless</code>), click into the big editing box and press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
+              <li>Under <b>Choose default signature</b>, set it for <b>New messages</b> and <b>Replies/forwards</b>, then <b>OK</b>.</li>
+            </ol>
+            <div class="tip">If the logo shows as a red X after pasting, Outlook could not reach the image URL. Fix the folder URL, or switch to <b>Embedded</b> and paste again. Pasting from Edge or Chrome works best.</div>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="t-newoutlook" aria-labelledby="tab-newoutlook" hidden>
+            <h3>New Outlook and Outlook on the web</h3>
+            <p>Same idea: paste the rendered signature. These versions store the signature in your Microsoft 365 mailbox, so it follows you to any computer.</p>
+            <ol>
+              <li>Set <b>Logo images</b> to <b>Hosted</b>, then click <b>Copy signature</b>.</li>
+              <li>Click the gear icon → <b>Accounts → Signatures</b> (on the web: <b>Settings → Mail → Compose and reply</b>).</li>
+              <li>Click <b>New signature</b>, give it a name, click into the editor and press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
+              <li>Pick it as the default for new messages and for replies, then <b>Save</b>.</li>
+            </ol>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="t-mac" aria-labelledby="tab-mac" hidden>
+            <h3>Outlook for Mac</h3>
+            <ol>
+              <li>Set <b>Logo images</b> to <b>Hosted</b> (or <b>Embedded</b>, both work on Mac), then click <b>Copy signature</b>.</li>
+              <li><b>Outlook → Settings → Signatures</b>, click <b>+</b>.</li>
+              <li>Click into the signature body and press <kbd>⌘</kbd>+<kbd>V</kbd>. Name it and close the window.</li>
+              <li>At the bottom of the Signatures pane, choose it as the default for your account.</li>
+            </ol>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="t-tb" aria-labelledby="tab-tb" hidden>
+            <h3>Thunderbird</h3>
+            <p>Thunderbird can read the signature straight from a file, which is the easiest route of all.</p>
+            <ol>
+              <li>Set <b>Logo images</b> to <b>Embedded</b>, then click <b>Download .html</b> (or <b>Copy HTML source</b> and save it as <code>signature.html</code>).</li>
+              <li><b>Account Settings</b> → pick your account.</li>
+              <li>Tick <b>Attach the signature from a file instead</b>, click <b>Choose…</b> and select the file.</li>
+              <li>Thunderbird embeds the logo in each message as an inline image, so recipients see it without loading remote content.</li>
+            </ol>
+            <div class="tip">Prefer pasting? Tick <b>Use HTML</b> on the account page and paste the <b>HTML source</b> (not the rendered signature) into the signature box.</div>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="t-gmail" aria-labelledby="tab-gmail" hidden>
+            <h3>Gmail</h3>
+            <ol>
+              <li>Set <b>Logo images</b> to <b>Hosted</b>. Gmail strips embedded images.</li>
+              <li>Click <b>Copy signature</b>.</li>
+              <li>In Gmail: gear → <b>See all settings → General → Signature → Create new</b>.</li>
+              <li>Click into the editor, press <kbd>Ctrl</kbd>+<kbd>V</kbd>, set the signature defaults below it and <b>Save Changes</b> at the bottom.</li>
+            </ol>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="t-all" aria-labelledby="tab-all" hidden>
+            <h3>Roll it out to the whole company</h3>
+            <p>If OGF's mail runs on Microsoft 365, an administrator can attach a signature server-side so nobody has to install anything, and it works on phones too.</p>
+            <ol>
+              <li>Host the four PNGs from the <code>img</code> folder on the company website.</li>
+              <li>In the Exchange admin center: <b>Mail flow → Rules → Add a rule → Apply disclaimers</b>, condition: sender is a member of the division's group.</li>
+              <li>Paste the division template from the <code>templates</code> folder and swap the placeholders for Exchange attributes: <code>%%DisplayName%%</code>, <code>%%Title%%</code>, <code>%%MobilePhone%%</code>, <code>%%PhoneNumber%%</code>, <code>%%Email%%</code>.</li>
+              <li>Fill in each person's title and phone numbers in their Microsoft 365 profile. The rule reads them from there.</li>
+            </ol>
+            <div class="tip">A transport rule adds the signature at the very bottom of the message, below any quoted replies. Third-party tools such as Exclaimer or CodeTwo place it under the newest reply instead, if that matters to you.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<section class="palette" aria-labelledby="h-palette">
+  <div class="wrap">
+    <div class="palette-inner">
+      <div>
+        <div class="eyebrow" style="color:var(--accent-ink)">Why it hangs together</div>
+        <h2 id="h-palette">One palette, three marks</h2>
+        <p>OGF and Fearless are black wordmarks, so black carries the name and the fine print. The steel blue was chosen to sit beside the Crossroads navy, and it is the only accent OGF and Fearless use. Orange is reserved for Crossroads. Every signature uses the same type, spacing and grey, so the three read as one family side by side.</p>
+      </div>
+      <div class="swatches">
+        <div class="sw"><i style="background:#0b0c0e"></i><div><b>Ink</b><span>#0B0C0E</span><small>Names, OGF and Fearless marks</small></div></div>
+        <div class="sw"><i style="background:#1f7fc4"></i><div><b>Steel</b><span>#1F7FC4</span><small>OGF and Fearless accent bar</small></div></div>
+        <div class="sw"><i style="background:#17629b"></i><div><b>Steel, small type</b><span>#17629B</span><small>Titles and links on white</small></div></div>
+        <div class="sw"><i style="background:#0b3453"></i><div><b>Navy</b><span>#0B3453</span><small>Crossroads titles and links</small></div></div>
+        <div class="sw"><i style="background:#ff8d2a"></i><div><b>Orange</b><span>#FF8D2A</span><small>Crossroads accent bar, shared with StrataFlow</small></div></div>
+        <div class="sw"><i style="background:#92bfd4"></i><div><b>Light blue</b><span>#92BFD4</span><small>Crossroads badge only</small></div></div>
+        <div class="sw"><i style="background:#62666c"></i><div><b>Mid grey</b><span>#62666C</span><small>Division line, address</small></div></div>
+        <div class="sw"><i style="background:#d5d7da"></i><div><b>Rule</b><span>#D5D7DA</span><small>Hairlines</small></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap eyebrow"><span>OGF Manufacturing LLC</span><span>Odessa, Texas</span><span>Signature kit</span></div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/*__PIECES__*/
+/*__DIVISIONS__*/
+/*__IMAGES__*/
+
+const $ = (id) => document.getElementById(id);
+const fields = ["name","title","mobile","office","email","web","address","imgbase"];
+const EXAMPLE = { name: "Alex Morgan", title: "Service Manager", mobile: "(432) 555-0142", email: "alex.morgan@example.com", web: "", imgbase: "https://rsty-shackleford.github.io/ogf-signature/img/" };
+let state = { div: "fearless", mode: "hosted", bg: "transparent", dark: false };
+
+function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function fill(s, map) { return s.replace(/\{\{(\w+)\}\}/g, (m, k) => (k in map ? map[k] : m)); }
+function telHref(s) { const d = s.replace(/\D/g, ""); return d.length === 10 ? "+1" + d : (d ? "+" + d : ""); }
+function webHref(s) { s = s.trim(); if (!s) return ""; return /^https?:\/\//i.test(s) ? s : "https://" + s; }
+
+function values() {
+  const v = {};
+  for (const f of fields) v[f] = $("f-" + f).value.trim();
+  return v;
+}
+
+function buildSignature(v, mode) {
+  const d = DIVISIONS[state.div];
+  const base = mode === "embedded" ? null : (v.imgbase || EXAMPLE.imgbase).replace(/\/?$/, "/");
+  const file = (fn) => state.bg === "tile" ? fn.replace(/\.png$/, "-tile.png") : fn;
+  const src = (fn) => mode === "embedded" ? IMAGES[file(fn)] : base + file(fn);
+  const names = Array.isArray(d.name) ? d.name : [d.name];
+  const map = { ACCENT: d.accent, TYPE: d.type };
+  const imgs = d.logos.map(([fn, w, h, alt]) => {
+    const im = fill(PIECES.logo, { IMG_LOGO: src(fn), LOGO_W: String(w), LOGO_H: String(h), DIVISION: esc(alt) });
+    return v.web ? fill(PIECES.logo_link, { LOGO_IMG: im, WEBSITE_URL: esc(webHref(v.web)) }) : im;
+  });
+  const logo = imgs.length === 1 ? imgs[0]
+    : fill(PIECES.logo_stack, { LOGO_ROWS: imgs.map((im, i) => fill(PIECES.logo_stack_row, { LOGO_IMG: im, PAD: i === 0 ? "0 0 10px 0" : "10px 0 0 0", BORDER: i === 0 ? "" : "border-top:1px solid #d5d7da;" })).join("") });
+
+  let rows = "";
+  rows += fill(PIECES.row_name, { NAME: esc(v.name || "Your Name") });
+  if (v.title) rows += fill(PIECES.row_title, { ...map, TITLE: esc(v.title) });
+  for (const n of names) rows += fill(PIECES.row_division, { DIVISION: esc(n) });
+  const phones = [];
+  if (v.mobile) phones.push(fill(PIECES.phone_mobile, { ...map, MOBILE: esc(v.mobile), MOBILE_TEL: telHref(v.mobile) }));
+  if (v.office) phones.push(fill(PIECES.phone_office, { ...map, OFFICE: esc(v.office), OFFICE_TEL: telHref(v.office) }));
+  if (phones.length) rows += fill(PIECES.row_phones, { PHONES: phones.join(PIECES.phone_sep) });
+  const links = [];
+  if (v.email) links.push(fill(PIECES.link_email, { ...map, EMAIL: esc(v.email) }));
+  if (v.web) links.push(fill(PIECES.link_web, { ...map, WEBSITE: esc(v.web), WEBSITE_URL: esc(webHref(v.web)) }));
+  if (links.length) rows += fill(PIECES.row_links, { LINKS: links.join(PIECES.link_sep) });
+  if (v.address) rows += fill(PIECES.row_address, { ADDRESS: esc(v.address) });
+
+  const footer = fill(d.footer_logo ? PIECES.footer_logo : PIECES.footer_plain, { IMG_MARK: src("ogf-mark.png"), FOOTER: esc(d.footer) });
+  return fill(PIECES.outer, { LOGO: logo, ROWS: rows, FOOTER: footer, ACCENT: d.accent }).replace(/·/g, "&middot;");
+}
+
+function plainText(v) {
+  const d = DIVISIONS[state.div];
+  const lines = [v.name || "Your Name"];
+  if (v.title) lines.push(v.title);
+  lines.push(...(Array.isArray(d.name) ? d.name : [d.name]));
+  const ph = []; if (v.mobile) ph.push("M " + v.mobile); if (v.office) ph.push("O " + v.office);
+  if (ph.length) lines.push(ph.join("   "));
+  const lk = []; if (v.email) lk.push(v.email); if (v.web) lk.push(v.web);
+  if (lk.length) lines.push(lk.join(" · "));
+  if (v.address) lines.push(v.address);
+  lines.push(d.footer_logo ? d.footer + " OGF Manufacturing LLC" : d.footer);
+  return lines.join("\n");
+}
+
+function render() {
+  const v = values();
+  $("preview").innerHTML = buildSignature(v, "embedded");   // preview always embeds, so it works before anything is hosted
+  $("pv-from").textContent = (v.name || "Your Name") + (v.email ? " <" + v.email + ">" : "");
+  $("f-imgbase").disabled = state.mode !== "hosted";
+  save();
+}
+
+function save() {
+  try { localStorage.setItem("ogf-sig", JSON.stringify({ ...values(), div: state.div, mode: state.mode, bg: state.bg })); } catch (e) {}
+}
+function load() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem("ogf-sig") || "null"); } catch (e) {}
+  const src = s || EXAMPLE;
+  for (const f of fields) if (f in src) $("f-" + f).value = src[f] || "";
+  if (s) { $("example-note").textContent = "Your entries are remembered in this browser only."; }
+  state.div = (s && DIVISIONS[s.div]) ? s.div : "fearless";
+  state.mode = (s && s.mode === "embedded") ? "embedded" : "hosted";
+  if (!s) { $("f-address").value = DIVISIONS[state.div].address; $("f-office").value = DIVISIONS[state.div].office; }
+  state.bg = (s && s.bg === "tile") ? "tile" : "transparent";
+  $("mode-" + state.mode).checked = true;
+  $("bg-" + state.bg).checked = true;
+  setDivision(state.div, true);
+}
+
+function setDivision(key, silent) {
+  const prev = DIVISIONS[state.div];
+  state.div = key;
+  for (const b of document.querySelectorAll("#seg button")) b.setAttribute("aria-pressed", String(b.dataset.div === key));
+  const a = $("f-address"), o = $("f-office");
+  if (!silent && (a.value.trim() === "" || a.value.trim() === prev.address)) a.value = DIVISIONS[key].address;
+  if (!silent && (o.value.trim() === "" || o.value.trim() === prev.office)) o.value = DIVISIONS[key].office;
+  render();
+}
+
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function fullDocument(html) {
+  return "<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\"><title>Email signature</title></head><body>\n" + html + "\n</body></html>\n";
+}
+
+async function copyRich() {
+  const v = values();
+  const html = buildSignature(v, state.mode);
+  const text = plainText(v);
+  try {
+    if (navigator.clipboard && window.ClipboardItem) {
+      await navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]);
+      toast("Signature copied. Paste it into your mail client."); return;
+    }
+    throw new Error("no clipboard api");
+  } catch (e) {
+    // fallback: select the rendered preview and copy; the browser puts rich HTML on the clipboard
+    const holder = document.createElement("div");
+    holder.style.cssText = "position:fixed;left:-9999px;top:0;background:#fff;";
+    holder.innerHTML = html; document.body.appendChild(holder);
+    const range = document.createRange(); range.selectNodeContents(holder);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    const ok = document.execCommand("copy"); sel.removeAllRanges(); holder.remove();
+    toast(ok ? "Signature copied. Paste it into your mail client." : "Copy blocked. Use Copy HTML source instead.");
+  }
+}
+
+async function copyHtml() {
+  const html = fullDocument(buildSignature(values(), state.mode));
+  try { await navigator.clipboard.writeText(html); toast("HTML source copied."); }
+  catch (e) {
+    const ta = document.createElement("textarea"); ta.value = html; ta.style.cssText = "position:fixed;left:-9999px;top:0";
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand("copy"); ta.remove();
+    toast(ok ? "HTML source copied." : "Copy blocked by the browser.");
+  }
+}
+
+function download() {
+  const v = values();
+  const html = fullDocument(buildSignature(v, state.mode));
+  const name = "signature-" + state.div + (v.name ? "-" + v.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : "") + ".html";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([html], { type: "text/html" })); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast("Saved " + name);
+}
+
+// wiring
+for (const f of fields) $("f-" + f).addEventListener("input", render);
+for (const b of document.querySelectorAll("#seg button")) b.addEventListener("click", () => setDivision(b.dataset.div));
+for (const r of document.querySelectorAll('input[name="imgmode"]')) r.addEventListener("change", () => { state.mode = r.value; render(); });
+for (const r of document.querySelectorAll('input[name="imgbg"]')) r.addEventListener("change", () => { state.bg = r.value; render(); });
+$("pv-dark").addEventListener("change", (e) => { $("email").classList.toggle("dark", e.target.checked); $("dark-note").hidden = !e.target.checked; });
+$("copy-rich").addEventListener("click", copyRich);
+$("copy-html").addEventListener("click", copyHtml);
+$("download").addEventListener("click", download);
+if (window.top === window.self) $("download").hidden = false;   // downloads are blocked inside the hosted viewer
+for (const t of document.querySelectorAll(".tab")) t.addEventListener("click", () => {
+  for (const x of document.querySelectorAll(".tab")) x.setAttribute("aria-selected", String(x === t));
+  for (const p of document.querySelectorAll(".tabpanel")) p.hidden = p.id !== t.getAttribute("aria-controls");
+});
+load();
+</script>
+</body>
+</html>
