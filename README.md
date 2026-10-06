@@ -6,7 +6,7 @@ One layout for everyone at OGF Manufacturing, Fearless Manufacturing and Crossro
 
 | File | What it is |
 |---|---|
-| `signature-generator.html` | The fill-in-the-blank tool. Open it in any browser (double-click it). Works offline. Also published at the link in the note below. |
+| `signature-generator.html` | The fill-in-the-blank tool. Live at https://rsty-shackleford.github.io/ogf-signature, or open the file in any browser (double-click it). Works offline. `index.html` is the same page, so the site root opens it. |
 | `templates/fearless.html`, `crossroads.html`, `fearless-crossroads.html`, `ogf.html` | The same signature as plain HTML with `{{PLACEHOLDERS}}`, for anyone who would rather edit by hand or for a server-side rollout. `fearless-crossroads.html` is the combined version for people who represent both divisions. |
 | `img/` | The logo PNGs the signature uses, at 2x for sharp rendering on high-DPI screens. The plain files are transparent; the `-tile` files put each logo on a white panel for people whose recipients read in dark mode (see below). |
 | `build/` | `build_signature.py` is the single source of truth for the signature HTML. Edit it and run it to regenerate the templates and the generator. |
@@ -24,11 +24,11 @@ The vector masters live with each logo: `ogf/logo/logo.svg`, `Fearless/logo/logo
 
 An email signature cannot carry files the way a document does. The logo has to come from somewhere, and there are two choices:
 
-**Hosted (recommended for Outlook and Gmail).** Upload the four PNGs from `img/` to a folder on the company website, for example `https://www.company.com/signature/`, and type that folder URL into the tool. The signature then links to `.../signature/fearless-logo.png` and so on. Recipients' mail clients download the logo when they open the message. This is how nearly every corporate signature works. Keep the file names unchanged.
+**Hosted (recommended for Outlook and Gmail).** The PNGs in `img/` are served from this repository through GitHub Pages at `https://rsty-shackleford.github.io/ogf-signature/img/`, and the tool uses that address by default. The signature links to `https://rsty-shackleford.github.io/ogf-signature/img/fearless-logo.png` and so on. Recipients' mail clients download the logo when they open the message. This is how nearly every corporate signature works. Never rename, move or delete the files in `img/`: every email already sent points at them. When the company has its own domain, add it as a custom domain for this site and the old address will redirect.
 
 **Embedded (Thunderbird, Apple Mail).** The tool bakes the PNGs into the HTML itself as data URIs. Nothing to host, and Thunderbird turns them into inline attachments on send. Gmail refuses embedded images, and some Outlook versions turn them into attachments, so use Hosted for those.
 
-Until the images are hosted, the preview in the tool still shows the logo (the preview always uses the embedded copies).
+The preview in the tool always uses embedded copies of the images, so it works even if the hosted files are unreachable for a moment.
 
 ## Dark mode
 
@@ -67,6 +67,10 @@ Three options, in increasing order of effort:
 | Rule | `#D5D7DA` | Hairlines |
 
 OGF and Fearless are black wordmarks, so black carries the name and the fine print. The steel blue is the one from the Fearless brochures, which was chosen to sit beside the Crossroads navy. Orange is reserved for Crossroads. Every signature shares the same type (Arial, because signatures can only use fonts installed on the recipient's machine), spacing and grey. Division signatures end with "A division of" in letter-spaced caps followed by the OGF logo, in the manner of the brochure page footers; the OGF signature lists its divisions there instead.
+
+## Updating the site
+
+The kit is the public GitHub repository `Rsty-Shackleford/ogf-signature`, published with GitHub Pages. After changing anything, run the build, then commit and push to `main`; the site updates within a minute. Only the `img/` file names are sacred (see above).
 
 ## Editing the design
 

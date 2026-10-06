@@ -281,7 +281,7 @@
             <h3>Roll it out to the whole company</h3>
             <p>If OGF's mail runs on Microsoft 365, an administrator can attach a signature server-side so nobody has to install anything, and it works on phones too.</p>
             <ol>
-              <li>Host the four PNGs from the <code>img</code> folder on the company website.</li>
+              <li>The PNGs are already hosted at <code>https://rsty-shackleford.github.io/ogf-signature/img/</code>.</li>
               <li>In the Exchange admin center: <b>Mail flow → Rules → Add a rule → Apply disclaimers</b>, condition: sender is a member of the division's group.</li>
               <li>Paste the division template from the <code>templates</code> folder and swap the placeholders for Exchange attributes: <code>%%DisplayName%%</code>, <code>%%Title%%</code>, <code>%%MobilePhone%%</code>, <code>%%PhoneNumber%%</code>, <code>%%Email%%</code>.</li>
               <li>Fill in each person's title and phone numbers in their Microsoft 365 profile. The rule reads them from there.</li>
