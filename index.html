@@ -27,8 +27,8 @@
     --bg: #0b0c0e; --surface: #15171a; --ink: #f0f1f2; --body: #d5d7da; --mid: #9a9da2; --soft: #8b8e93;
     --rule: #2a2d31; --rule-strong: #383b40; --accent: #4ba6e8; --accent-ink: #4ba6e8; --accent-soft: #14283a;
   }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  * { box-sizing: border-box; min-width: 0; }
+  html, body { margin: 0; overflow-x: hidden; }
   body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
   img { max-width: 100%; }
   .wrap { max-width: 1180px; margin-inline: auto; padding-inline: 16px; }
@@ -49,9 +49,15 @@
   .family img.ogf { height: 40px; }
 
   /* body grid */
-  main .wrap { padding-block: 34px 10px; display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 28px; align-items: start; }
-  @media (max-width: 900px) { main .wrap { grid-template-columns: 1fr; } }
-  section.panel { background: var(--surface); border: 1px solid var(--rule); }
+  main .wrap { padding-block: 34px 10px; display: grid; gap: 24px; }
+  .cols { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 28px; align-items: start; }
+  .details { grid-column: 1; grid-row: 1 / span 2; }
+  .preview { grid-column: 2; grid-row: 1; }
+  .install { grid-column: 2; grid-row: 2; }
+  .pick .panel-head { padding-bottom: 10px; }
+  .pick .panel-body { padding: 14px 20px 18px; }
+  .pick .seg { max-width: 560px; }
+  section.panel { background: var(--surface); border: 1px solid var(--rule); min-width: 0; max-width: 100%; }
   .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 20px 12px; border-bottom: 1px solid var(--rule); }
   .panel-head .eyebrow { color: var(--accent-ink); }
   .panel-head h2 { font-family: var(--display); font-weight: 600; font-size: 24px; line-height: 1; margin: 6px 0 0; text-transform: uppercase; letter-spacing: .01em; }
@@ -102,7 +108,7 @@
   .btn.primary { background: var(--ink); color: var(--bg); }
   .btn.accent { border-color: var(--accent); color: var(--accent-ink); }
   .btn svg { width: 15px; height: 15px; }
-  .tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--rule); }
+  .tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--rule); max-width: 100%; }
   .tab { appearance: none; background: transparent; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 9px 12px; font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--mid); cursor: pointer; }
   .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
   .tabpanel { padding-top: 16px; }
@@ -137,19 +143,35 @@
   #preview { width: max-content; max-width: none; transform-origin: top left; }
   #preview img { max-width: none; }
   @media (max-width: 640px) {
+    .hero .wrap { padding-block: 24px 22px; gap: 18px; }
+    .hero p { display: none; }
     .family { gap: 14px 0; }
     .family div { padding: 0 12px; }
     .family div:first-child { padding-left: 0; }
     .family img { height: 22px; }
     .family img.badge { height: 56px; }
     .family img.ogf { height: 26px; }
-    .email { padding: 18px 16px 16px; }
     .actions { flex-direction: column; }
     .actions .btn { justify-content: center; }
     .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .tabs::-webkit-scrollbar { display: none; }
     .tab { flex: 0 0 auto; white-space: nowrap; }
     footer span { border-left: 0; padding-left: 0; }
+  }
+  @media (max-width: 900px) {
+    .cols { grid-template-columns: 1fr; grid-template-rows: none; gap: 20px; }
+    .details, .preview, .install { grid-column: auto; grid-row: auto; }
+    .preview { order: 1; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; box-shadow: 0 10px 24px rgba(0,0,0,.22); }
+    .details { order: 2; }
+    .install { order: 3; }
+    .preview .from { display: none; }
+    .preview .panel-head { padding: 10px 16px 8px; }
+    .preview .panel-head h2 { font-size: 18px; margin-top: 2px; }
+    .preview .panel-body { padding: 10px; }
+    .email { padding: 12px 10px 10px; }
+    main .wrap { padding-block: 22px 10px; gap: 20px; }
+    .pick .panel-body { padding: 12px 16px 16px; }
+    .seg button { font-size: 13px; padding: 10px 4px; letter-spacing: .02em; }
   }
   .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--bg); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; padding: 11px 18px; opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; max-width: calc(100vw - 32px); text-align: center; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -175,10 +197,8 @@
 
 <main>
   <div class="wrap">
-    <section class="panel" aria-labelledby="h-details">
-      <div class="panel-head">
-        <div><div class="eyebrow">Step 1</div><h2 id="h-details">Your details</h2></div>
-      </div>
+    <section class="panel pick" aria-labelledby="h-div">
+      <div class="panel-head"><div><div class="eyebrow">Step 1</div><h2 id="h-div">Your division</h2></div></div>
       <div class="panel-body">
         <div class="seg" role="group" aria-label="Division" id="seg">
           <button type="button" data-div="fearless" aria-pressed="true" style="--seg-accent:#4ba6e8"><i></i>Fearless</button>
@@ -186,7 +206,15 @@
           <button type="button" data-div="both" aria-pressed="false" style="--seg-accent:#4ba6e8"><i></i>Both</button>
           <button type="button" data-div="ogf" aria-pressed="false" style="--seg-accent:#4ba6e8"><i></i>OGF</button>
         </div>
+      </div>
+    </section>
 
+    <div class="cols">
+    <section class="panel details" aria-labelledby="h-details">
+      <div class="panel-head">
+        <div><div class="eyebrow">Step 2</div><h2 id="h-details">Your details</h2></div>
+      </div>
+      <div class="panel-body">
         <div class="field"><label for="f-name">Full name</label><input id="f-name" type="text" autocomplete="name" placeholder="First Last"></div>
         <div class="field"><label for="f-title">Title</label><input id="f-title" type="text" autocomplete="organization-title" placeholder="Shop Manager"></div>
         <div class="two">
@@ -212,10 +240,9 @@
       </div>
     </section>
 
-    <div style="display:grid;gap:28px;min-width:0">
-      <section class="panel" aria-labelledby="h-preview">
+      <section class="panel preview" aria-labelledby="h-preview">
         <div class="panel-head">
-          <div><div class="eyebrow">Step 2</div><h2 id="h-preview">Preview</h2></div>
+          <div><div class="eyebrow">Step 3</div><h2 id="h-preview">Preview</h2></div>
           <div class="pv-tools"><label class="toggle"><input type="checkbox" id="pv-dark"> Dark mail client</label></div>
         </div>
         <div class="panel-body">
@@ -227,9 +254,9 @@
         </div>
       </section>
 
-      <section class="panel" aria-labelledby="h-install">
+      <section class="panel install" aria-labelledby="h-install">
         <div class="panel-head">
-          <div><div class="eyebrow">Step 3</div><h2 id="h-install">Install it</h2></div>
+          <div><div class="eyebrow">Step 4</div><h2 id="h-install">Install it</h2></div>
         </div>
         <div class="panel-body">
           <div class="actions">
@@ -423,9 +450,11 @@ function fitPreview() {
   box.style.transform = ""; box.style.height = "";
   const avail = card.clientWidth - parseFloat(getComputedStyle(card).paddingLeft) - parseFloat(getComputedStyle(card).paddingRight);
   const w = box.scrollWidth, h = box.scrollHeight;
-  if (w > avail) { const k = avail / w; box.style.transform = "scale(" + k + ")"; box.style.height = (h * k) + "px"; }
+  if (avail > 40 && w > avail) { const k = avail / w; box.style.transform = "scale(" + k + ")"; box.style.height = (h * k) + "px"; }
 }
 window.addEventListener("resize", fitPreview);
+window.addEventListener("orientationchange", () => setTimeout(fitPreview, 150));
+window.addEventListener("load", () => { fitPreview(); setTimeout(fitPreview, 300); });
 
 function save() {
   try { localStorage.setItem("ogf-sig", JSON.stringify({ ...values(), div: state.div, mode: state.mode, bg: state.bg })); } catch (e) {}
