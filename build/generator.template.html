@@ -83,7 +83,7 @@
   .pv-tools { display: flex; align-items: center; gap: 10px; }
   .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--mid); cursor: pointer; }
   .toggle input { accent-color: var(--accent); margin: 0; }
-  .email { background: #ffffff; color: #0b0c0e; border: 1px solid var(--rule); padding: 26px 28px 24px; overflow-x: auto; }
+  .email { background: #ffffff; color: #0b0c0e; border: 1px solid var(--rule); padding: 26px 28px 24px; overflow: hidden; }
   .email.dark { background: #1f1f1f; }
   .email .from { font-family: var(--text); font-size: 13px; color: #26292d; margin: 0 0 22px; }
   .email.dark .from { color: #d5d7da; }
@@ -134,6 +134,23 @@
   footer span { border-left: 1px solid var(--hero-rule); padding-left: 22px; }
   footer span:first-child { border-left: 0; padding-left: 0; }
 
+  #preview { width: max-content; max-width: none; transform-origin: top left; }
+  #preview img { max-width: none; }
+  @media (max-width: 640px) {
+    .family { gap: 14px 0; }
+    .family div { padding: 0 12px; }
+    .family div:first-child { padding-left: 0; }
+    .family img { height: 22px; }
+    .family img.badge { height: 56px; }
+    .family img.ogf { height: 26px; }
+    .email { padding: 18px 16px 16px; }
+    .actions { flex-direction: column; }
+    .actions .btn { justify-content: center; }
+    .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: 0 0 auto; white-space: nowrap; }
+    footer span { border-left: 0; padding-left: 0; }
+  }
   .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--bg); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; padding: 11px 18px; opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; max-width: calc(100vw - 32px); text-align: center; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
@@ -187,8 +204,10 @@
           <div class="field" style="margin-left:28px"><label for="f-imgbase">Image folder <small>already set up; change only if the logos move</small></label><input id="f-imgbase" type="url" placeholder="https://rsty-shackleford.github.io/ogf-signature/img/"></div>
           <label class="radio"><input type="radio" name="imgmode" value="embedded" id="mode-embedded"><div><b>Embedded in the signature (Thunderbird, Apple Mail)</b><span>The logo files are baked into the HTML itself. Nothing to host, but Gmail refuses embedded images and some Outlook versions turn them into attachments.</span></div></label>
           <div class="eyebrow" style="color:var(--accent-ink);margin-top:20px">Logo background</div>
-          <label class="radio"><input type="radio" name="imgbg" value="transparent" id="bg-transparent" checked><div><b>Transparent</b><span>Clean on a white message. Dark-mode mail clients lighten the text but leave images alone, so the black wordmarks lose contrast there.</span></div></label>
-          <label class="radio"><input type="radio" name="imgbg" value="tile" id="bg-tile"><div><b>White panel</b><span>Each logo sits on a small white panel, so it stays readable in dark mode at the cost of a visible box there. Compare with the dark preview.</span></div></label>
+          <label class="radio"><input type="radio" name="imgbg" value="outline" id="bg-outline" checked><div><b>Outlined (recommended)</b><span>Transparent, with a hair-thin white outline around the dark shapes. Invisible on a white message; in a dark-mode client it keeps the black wordmarks readable.</span></div></label>
+          <label class="radio"><input type="radio" name="imgbg" value="plain" id="bg-plain"><div><b>Plain transparent</b><span>No outline. The black wordmarks fade in dark-mode clients.</span></div></label>
+          <label class="radio"><input type="radio" name="imgbg" value="tile" id="bg-tile"><div><b>White panel</b><span>Each logo on a small white panel. Always readable, at the cost of a visible box in dark mode.</span></div></label>
+          <p class="note" style="margin-top:12px">Mail clients never let a pasted signature switch to white logos in dark mode. If that matters, the server-side route under <b>Everyone at once</b> does it for Outlook on the web, new Outlook, the Outlook phone apps and Apple Mail.</p>
         </div>
       </div>
     </section>
@@ -204,7 +223,7 @@
             <p class="from"><em>From:</em> <span id="pv-from">you</span> &nbsp; <em>Subject:</em> Re: Tuesday's pump</p>
             <div id="preview"></div>
           </div>
-          <p class="note" id="dark-note" hidden>Simulated: dark-mode clients lighten your text and leave the images as they are. Switch <b>Logo background</b> to compare.</p>
+          <p class="note" id="dark-note" hidden>Simulated: dark-mode clients lighten your text and leave the images as they are. Switch <b>Logo background</b> to compare the three choices.</p>
         </div>
       </section>
 
@@ -278,15 +297,15 @@
             </ol>
           </div>
           <div class="tabpanel" role="tabpanel" id="t-all" aria-labelledby="tab-all" hidden>
-            <h3>Roll it out to the whole company</h3>
-            <p>If OGF's mail runs on Microsoft 365, an administrator can attach a signature server-side so nobody has to install anything, and it works on phones too.</p>
+            <h3>Roll it out to the whole company, with real dark-mode logos</h3>
+            <p>If OGF's mail runs on Microsoft 365, an administrator can attach the signature server-side. Nobody installs anything, phones are covered, and because the HTML is never pasted into an editor it can carry the rules that switch the logos to white in dark mode. That swap works in Outlook on the web, new Outlook for Windows, Outlook for iOS and Android, Outlook for Mac and Apple Mail. Classic Outlook for Windows and Gmail ignore it and show the outlined logos.</p>
             <ol>
-              <li>The PNGs are already hosted at <code>https://rsty-shackleford.github.io/ogf-signature/img/</code>.</li>
-              <li>In the Exchange admin center: <b>Mail flow → Rules → Add a rule → Apply disclaimers</b>, condition: sender is a member of the division's group.</li>
-              <li>Paste the division template from the <code>templates</code> folder and swap the placeholders for Exchange attributes: <code>%%DisplayName%%</code>, <code>%%Title%%</code>, <code>%%MobilePhone%%</code>, <code>%%PhoneNumber%%</code>, <code>%%Email%%</code>.</li>
-              <li>Fill in each person's title and phone numbers in their Microsoft 365 profile. The rule reads them from there.</li>
+              <li>Open the ready-made file for the division in <code>templates/exchange/</code> (fearless, crossroads, fearless-crossroads, ogf). It already uses Exchange attributes: <code>%%DisplayName%%</code>, <code>%%Title%%</code>, <code>%%MobilePhone%%</code>, <code>%%Email%%</code>, the division's office number and address, and the hosted images.</li>
+              <li>Exchange admin center: <b>Mail flow → Rules → Add a rule → Apply disclaimers</b>. Condition: the sender is a member of that division's group. Action: append the disclaimer; paste the file's contents as the text. Fallback: Wrap.</li>
+              <li>Make sure each person's Title and Mobile phone are filled in on their Microsoft 365 profile. The rule reads them from there.</li>
+              <li>Send a test to a personal account and read it in Outlook on the web with dark mode on.</li>
             </ol>
-            <div class="tip">A transport rule adds the signature at the very bottom of the message, below any quoted replies. Third-party tools such as Exclaimer or CodeTwo place it under the newest reply instead, if that matters to you.</div>
+            <div class="tip">A mail-flow rule adds the signature at the very bottom of the message, below quoted replies. Exclaimer or CodeTwo place it under the newest reply instead and accept the same HTML, if that matters.</div>
           </div>
         </div>
       </section>
@@ -330,7 +349,7 @@
 const $ = (id) => document.getElementById(id);
 const fields = ["name","title","mobile","office","email","web","address","imgbase"];
 const EXAMPLE = { name: "Alex Morgan", title: "Service Manager", mobile: "(432) 555-0142", email: "alex.morgan@example.com", web: "", imgbase: "https://rsty-shackleford.github.io/ogf-signature/img/" };
-let state = { div: "fearless", mode: "hosted", bg: "transparent", dark: false };
+let state = { div: "fearless", mode: "hosted", bg: "outline", dark: false };
 
 function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function fill(s, map) { return s.replace(/\{\{(\w+)\}\}/g, (m, k) => (k in map ? map[k] : m)); }
@@ -346,7 +365,7 @@ function values() {
 function buildSignature(v, mode) {
   const d = DIVISIONS[state.div];
   const base = mode === "embedded" ? null : (v.imgbase || EXAMPLE.imgbase).replace(/\/?$/, "/");
-  const file = (fn) => state.bg === "tile" ? fn.replace(/\.png$/, "-tile.png") : fn;
+  const file = (fn) => state.bg === "plain" ? fn : fn.replace(/\.png$/, state.bg === "tile" ? "-tile.png" : "-outline.png");
   const src = (fn) => mode === "embedded" ? IMAGES[file(fn)] : base + file(fn);
   const names = Array.isArray(d.name) ? d.name : [d.name];
   const map = { ACCENT: d.accent, TYPE: d.type };
@@ -392,10 +411,21 @@ function plainText(v) {
 function render() {
   const v = values();
   $("preview").innerHTML = buildSignature(v, "embedded");   // preview always embeds, so it works before anything is hosted
+  fitPreview();
   $("pv-from").textContent = (v.name || "Your Name") + (v.email ? " <" + v.email + ">" : "");
   $("f-imgbase").disabled = state.mode !== "hosted";
   save();
 }
+
+function fitPreview() {
+  // scale the true-size signature down to fit a narrow screen instead of letting the table squeeze
+  const box = $("preview"), card = $("email");
+  box.style.transform = ""; box.style.height = "";
+  const avail = card.clientWidth - parseFloat(getComputedStyle(card).paddingLeft) - parseFloat(getComputedStyle(card).paddingRight);
+  const w = box.scrollWidth, h = box.scrollHeight;
+  if (w > avail) { const k = avail / w; box.style.transform = "scale(" + k + ")"; box.style.height = (h * k) + "px"; }
+}
+window.addEventListener("resize", fitPreview);
 
 function save() {
   try { localStorage.setItem("ogf-sig", JSON.stringify({ ...values(), div: state.div, mode: state.mode, bg: state.bg })); } catch (e) {}
@@ -407,9 +437,11 @@ function load() {
   for (const f of fields) if (f in src) $("f-" + f).value = src[f] || "";
   if (s) { $("example-note").textContent = "Your entries are remembered in this browser only."; }
   state.div = (s && DIVISIONS[s.div]) ? s.div : "fearless";
+  if (s && (!s.imgbase || /company\.com/.test(s.imgbase))) $("f-imgbase").value = EXAMPLE.imgbase;   // stale placeholder saved by an early version
+  if (s && s.office === "(432) 555-0100") $("f-office").value = DIVISIONS[state.div].office;         // old example number
   state.mode = (s && s.mode === "embedded") ? "embedded" : "hosted";
   if (!s) { $("f-address").value = DIVISIONS[state.div].address; $("f-office").value = DIVISIONS[state.div].office; }
-  state.bg = (s && s.bg === "tile") ? "tile" : "transparent";
+  state.bg = (s && (s.bg === "tile" || s.bg === "plain")) ? s.bg : "outline";
   $("mode-" + state.mode).checked = true;
   $("bg-" + state.bg).checked = true;
   setDivision(state.div, true);

@@ -184,8 +184,66 @@ def static_template(key):
     )
 
 
+SITE = "https://rsty-shackleford.github.io/ogf-signature/img/"
+EXCHANGE = dict(NAME="%%DisplayName%%", TITLE="%%Title%%", MOBILE="%%MobilePhone%%", MOBILE_TEL="%%MobilePhone%%", EMAIL="%%Email%%")
+SWAP_CSS = ('<style type="text/css">@media (prefers-color-scheme: dark){.ogf-lm{display:none !important;}.ogf-dm{display:block !important;}}'
+            '[data-ogsc] .ogf-lm{display:none !important;}[data-ogsc] .ogf-dm{display:block !important;}</style>')
+
+
+def img_tag(src, w, h, alt, cls="", hidden=False):
+    extra = "display:none;mso-hide:all;" if hidden else "display:block;"
+    c = ' class="%s"' % cls if cls else ""
+    return ('<img%s src="%s" width="%d" height="%d" alt="%s" style="%smargin:0 auto;border:0;outline:none;'
+            'text-decoration:none;width:%dpx;height:%dpx;">' % (c, src, w, h, alt, extra, w, h))
+
+
+def logo_pair(fn, w, h, alt):
+    """Light logo for light mode, white logo revealed in dark mode (Apple Mail, Outlook web/new/mobile). Word-based Outlook gets the light one."""
+    light, dark = SITE + fn.replace(".png", "-outline.png"), SITE + fn.replace(".png", "-white.png")
+    return ("<!--[if !mso]><!-->" + img_tag(light, w, h, alt, "ogf-lm") + img_tag(dark, w, h, alt, "ogf-dm", hidden=True) + "<!--<![endif]-->"
+            "<!--[if mso]>" + img_tag(light, w, h, alt) + "<![endif]-->")
+
+
+def exchange_template(key):
+    """Server-side version for an Exchange mail-flow rule: Exchange attributes instead of placeholders, hosted images, dark-mode swap."""
+    d = DIVISIONS[key]
+    imgs = [logo_pair(fn, w, h, alt) for fn, w, h, alt in d["logos"]]
+    if len(imgs) == 1:
+        logo = imgs[0]
+    else:
+        rows = "".join(fill(PIECES["logo_stack_row"], LOGO_IMG=im, PAD=("0 0 10px 0" if i == 0 else "10px 0 0 0"),
+                            BORDER=("" if i == 0 else "border-top:1px solid " + RULE + ";")) for i, im in enumerate(imgs))
+        logo = fill(PIECES["logo_stack"], LOGO_ROWS=rows)
+    names = d["name"] if isinstance(d["name"], list) else [d["name"]]
+    rows = (PIECES["row_name"] + PIECES["row_title"]
+            + "".join(fill(PIECES["row_division"], DIVISION=n) for n in names)
+            + fill(PIECES["row_phones"], PHONES=PIECES["phone_mobile"] + PIECES["phone_sep"] + PIECES["phone_office"])
+            + fill(PIECES["row_links"], LINKS=PIECES["link_email"])
+            + (PIECES["row_address"] if d["address"] else ""))
+    if d["footer_logo"]:
+        footer = fill(PIECES["footer_logo"], FOOTER=d["footer"])
+        footer = footer.replace(fill(PIECES["footer_logo"], FOOTER=d["footer"])[footer.index("<img"):footer.index(">", footer.index("<img")) + 1],
+                                logo_pair("ogf-mark.png", 58, 14, "OGF Manufacturing"))
+    else:
+        footer = fill(PIECES["footer_plain"], FOOTER=d["footer"])
+    sig = fill(PIECES["outer"], LOGO=logo, ROWS=rows, FOOTER=footer)
+    sig = fill(sig, ACCENT=d["accent"], TYPE=d["type"], ADDRESS=d["address"],
+               OFFICE=d["office"], OFFICE_TEL="+1" + re.sub(r"\D", "", d["office"]), **EXCHANGE)
+    # Exchange caps a disclaimer at 5,000 characters: drop CSS that duplicates an HTML attribute
+    for junk in ['role="presentation" ', "outline:none;text-decoration:none;", "vertical-align:middle;", "text-align:center;"]:
+        sig = sig.replace(junk, "")
+    return SWAP_CSS + sig.replace("·", "&middot;")
+
+
 def main():
     os.makedirs(TPL, exist_ok=True)
+    os.makedirs(os.path.join(TPL, "exchange"), exist_ok=True)
+    for key in DIVISIONS:
+        fn = {"both": "fearless-crossroads"}.get(key, key) + ".html"
+        html = exchange_template(key)
+        with open(os.path.join(TPL, "exchange", fn), "w") as f:
+            f.write(html)
+        print("wrote templates/exchange/%s (%d characters)" % (fn, len(html)))
     for key in DIVISIONS:
         fn = {"both": "fearless-crossroads"}.get(key, key) + ".html"
         with open(os.path.join(TPL, fn), "w") as f:
@@ -194,7 +252,7 @@ def main():
 
     images = {}
     for base in ["fearless-logo", "crossroads-logo", "ogf-logo", "ogf-mark"]:
-        for fn in [base + ".png", base + "-tile.png"]:      # transparent, and on a white panel for dark-mode clients
+        for fn in [base + ".png", base + "-outline.png", base + "-tile.png"]:   # plain, white-outlined, white panel
             with open(os.path.join(IMG, fn), "rb") as f:
                 images[fn] = "data:image/png;base64," + base64.b64encode(f.read()).decode()
 

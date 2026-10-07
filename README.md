@@ -12,7 +12,7 @@ One layout for everyone at OGF Manufacturing, Fearless Manufacturing and Crossro
 1. Open the builder link above.
 2. Pick your tab: **Fearless**, **Crossroads**, **Both** (you represent Fearless and Crossroads together) or **OGF**. The office number and address fill in for the division; change them if yours differ.
 3. Type your name, title, mobile and email. Website is optional until the company has one.
-4. Leave **Logo images** on Hosted and **Logo background** on Transparent unless the notes below give you a reason not to.
+4. Leave **Logo images** on Hosted and **Logo background** on Outlined unless the notes below give you a reason not to.
 5. Click **Copy signature**, then follow the **Install it** tab for your mail client (classic Outlook, new Outlook and web, Outlook for Mac, Thunderbird, Gmail).
 
 The three buttons:
@@ -46,7 +46,8 @@ This folder is the live site. It is a git checkout of the repository above; push
 |---|---|
 | `signature-generator.html` | The builder. `index.html` is an identical copy so the site root opens it. Self-contained: works offline from a double-click, logos embedded. |
 | `templates/fearless.html`, `crossroads.html`, `fearless-crossroads.html`, `ogf.html` | The same four signatures as plain HTML with `{{PLACEHOLDERS}}`, for hand editing or a server-side rollout. Office number and address are pre-filled per division. |
-| `img/` | The logo PNGs every sent email links to, at 2x for high-DPI screens. Plain files are transparent; `-tile` files put the logo on a white panel (see Dark mode). `index.html` there is the listing page the folder address shows. |
+| `img/` | The logo PNGs every sent email links to, at 2x for high-DPI screens. Four sets: `-outline` (transparent with a hair-thin white outline, the default), plain transparent, `-tile` (white panel) and `-white` (white logos for the server-side dark-mode swap). `index.html` there is the listing page the folder address shows. |
+| `templates/exchange/*.html` | Server-side versions for an Exchange mail-flow rule: Exchange attributes (`%%DisplayName%%` and friends) instead of placeholders, hosted images, and the dark-mode logo swap. Each is under Exchange's 5,000-character limit. |
 | `build/build_signature.py` | Single source of truth. `PIECES` is the signature HTML, `DIVISIONS` holds each tab's mark, colours, footer and defaults. Run it to regenerate the templates and the builder. |
 | `build/generator.template.html` | The builder page before the build script embeds the images and configuration. |
 
@@ -66,12 +67,15 @@ The builder's preview always uses embedded copies, so it shows the logos even if
 
 ## Dark mode
 
-A signature cannot adapt to the reader's theme. Dark-mode mail clients lighten the text and leave images exactly as sent, and a pasted signature cannot carry the style rules that would swap in white logos. Two choices, under **Logo background** in the builder:
+What dark-mode mail clients actually do: they lighten the text and leave images exactly as sent. A pasted signature cannot switch to white logos, because every Outlook signature editor strips the style rules that would do it, and the sender cannot know the reader's theme anyway. So for pasted signatures the images have to work on both backgrounds by themselves. Three choices under **Logo background** in the builder:
 
-- **Transparent** (default): clean on a white message. In a dark-mode client the black OGF and Fearless wordmarks lose contrast; the Crossroads badge mostly survives.
-- **White panel**: each logo on a small white panel, readable in dark mode at the cost of a visible box there.
+- **Outlined** (default): transparent, with a hair-thin white outline around the dark shapes. Invisible on a white message. In a dark-mode client the black OGF and Fearless wordmarks stay readable as black letters with a white edge, and the Crossroads badge keeps its shape.
+- **Plain transparent**: no outline. Black wordmarks fade on dark.
+- **White panel**: each logo on a small white panel. Always readable, visible box on dark.
 
-Most people read mail on white, so Transparent is the default. The **Dark mail client** toggle in the preview simulates a dark-mode reader (text lightened, images untouched) so the two can be compared.
+The **Dark mail client** toggle in the preview simulates a dark-mode reader (text lightened, images untouched) so the three can be compared.
+
+**Logos that really turn white in dark mode** are possible only when the signature is added server-side, because then the HTML reaches the recipient intact. The files in `templates/exchange/` carry a light and a white copy of each logo plus the rules that swap them: `prefers-color-scheme` for Apple Mail, iOS Mail and Outlook for Mac, and Outlook's own `[data-ogsc]` hook for Outlook on the web, new Outlook for Windows and the Outlook apps for iOS and Android. Classic Outlook for Windows and Gmail ignore both and show the outlined logo, which still reads. See Rolling it out, option 3.
 
 ## Can Outlook take a URL?
 
@@ -81,7 +85,7 @@ No. No version of Outlook loads a signature from a web address. The route is: re
 
 1. **Send the link.** Post the builder link in Teams with the quick start above. Each person does it once.
 2. **Pre-fill it for them.** Open the builder from the file on disk, fill in a person's details, Download .html, and email them the file with the install steps.
-3. **Server-side (Microsoft 365).** An admin creates an Exchange mail-flow rule ("Apply disclaimers") per division that appends the signature to every outgoing message. Paste the division template from `templates/` and replace the placeholders with Exchange attributes: `{{NAME}}` → `%%DisplayName%%`, `{{TITLE}}` → `%%Title%%`, `{{MOBILE}}` → `%%MobilePhone%%`, `{{OFFICE}}` → `%%PhoneNumber%%`, `{{EMAIL}}` → `%%Email%%`. This also covers phones, where Outlook only allows plain-text signatures. A disclaimer rule adds the signature at the very bottom of the message, under quoted replies; products such as Exclaimer or CodeTwo place it under the newest reply instead.
+3. **Server-side (Microsoft 365), the only route with true dark-mode logos.** An admin creates an Exchange mail-flow rule per division: **Mail flow → Rules → Add a rule → Apply disclaimers**, condition "the sender is a member of" the division's group, action "append", fallback "Wrap", and pastes the matching file from `templates/exchange/` as the disclaimer text. The files already use `%%DisplayName%%`, `%%Title%%`, `%%MobilePhone%%` and `%%Email%%`, so each person's Title and Mobile phone must be filled in on their Microsoft 365 profile. This covers phones, where Outlook only allows plain-text signatures, and carries the dark-mode swap described above. Send a test to an outside account and read it in Outlook on the web with dark mode on. A disclaimer rule adds the signature at the very bottom of the message, under quoted replies; Exclaimer or CodeTwo place it under the newest reply and accept the same HTML.
 
 ## The palette, and why it ties together
 
@@ -105,6 +109,8 @@ OGF and Fearless are black wordmarks, so black carries the name and the fine pri
 - **Layout rules.** No two logos side by side; the Both tab stacks Crossroads above Fearless, centred, with a hairline. The footer OGF mark is small and follows "A DIVISION OF". "Mobile Repair" is dropped from all text; the company is written as Crossroads Diesel.
 - **Images are transparent** by default; the white-panel set is kept as an option for dark-mode readers.
 - **Hosting.** Public GitHub repository with GitHub Pages, chosen over Teams/SharePoint (sign-in walls) and consumer hosts (hotlink limits). The image file names and address are permanent from the first email sent. Custom domain to be added when the company has one.
+- **Dark mode, second pass.** Pasted signatures cannot swap images, so the default image set became outlined transparent PNGs that read on both backgrounds; plain and white-panel sets are kept as options. Server-side Exchange templates with a real light/white logo swap were added for Outlook on the web, new Outlook, the Outlook phone apps and Apple Mail.
+- **Phone layout.** The builder scales the preview to fit a phone screen and keeps the header strip, buttons and client tabs tidy at narrow widths. Phone screenshots used for the check live in `mobile/`, which git ignores.
 - **Still open.** Company website and email domain are unknown, so the Website field is blank by default.
 
 ## Editing the design
