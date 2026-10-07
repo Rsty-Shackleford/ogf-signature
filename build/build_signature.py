@@ -214,6 +214,17 @@ def main():
         f.write(gen)
     with open(os.path.join(ROOT, "index.html"), "w") as f:   # same page at the site root
         f.write(gen)
+    # img/index.html: the image folder address shows what is there (static hosts do not list folders)
+    pngs = sorted(fn for fn in os.listdir(IMG) if fn.endswith(".png"))
+    rows = "".join('<li><a href="%s"><img src="%s" alt=""><code>%s</code></a></li>' % (fn, fn, fn) for fn in pngs)
+    with open(os.path.join(IMG, "index.html"), "w") as f:
+        f.write('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+                '<title>Signature images</title><style>body{font-family:Arial,sans-serif;margin:32px;color:#0b0c0e;background:#f0f1f2}'
+                'h1{font-size:20px;margin:0 0 6px}p{margin:0 0 20px;color:#62666c;max-width:60ch}ul{list-style:none;padding:0;margin:0;display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}'
+                'li a{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #d5d7da;padding:12px 14px;text-decoration:none;color:#0b0c0e}'
+                'li img{height:40px;width:auto;max-width:120px;background:repeating-conic-gradient(#e5e7ea 0 25%,#fff 0 50%) 0 0/16px 16px}code{font-size:12px}</style></head><body>'
+                '<h1>OGF signature images</h1><p>These files are linked from every OGF, Fearless and Crossroads email signature. Do not rename, move or delete them. The <code>-tile</code> files are the same logos on a white panel.</p>'
+                '<ul>' + rows + '</ul></body></html>')
     print("wrote signature-generator.html (%d KB)" % (len(gen) // 1024))
     # optional: a copy without the document skeleton, for hosting in a viewer that supplies its own
     out = os.environ.get("ARTIFACT_OUT")
