@@ -56,7 +56,7 @@
   .install { grid-column: 2; grid-row: 2; }
   .pick .panel-head { padding-bottom: 10px; }
   .pick .panel-body { padding: 14px 20px 18px; }
-  .pick .seg { max-width: 560px; }
+  .pick .seg { max-width: 420px; }
   section.panel { background: var(--surface); border: 1px solid var(--rule); min-width: 0; max-width: 100%; }
   .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 20px 12px; border-bottom: 1px solid var(--rule); }
   .panel-head .eyebrow { color: var(--accent-ink); }
@@ -64,7 +64,7 @@
   .panel-body { padding: 18px 20px 20px; }
 
   /* form */
-  .seg { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--rule-strong); }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--rule-strong); }
   .seg button { appearance: none; background: transparent; border: 0; border-left: 1px solid var(--rule-strong); color: var(--mid); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; padding: 11px 6px; cursor: pointer; display: grid; gap: 6px; justify-items: center; }
   .seg button:first-child { border-left: 0; }
   .seg button i { display: block; width: 26px; height: 4px; background: var(--rule-strong); }
@@ -186,7 +186,7 @@
     <div>
       <div class="eyebrow">OGF Manufacturing · Fearless · Crossroads Diesel</div>
       <h1>One family.<br>One signature. <b>Three marks.</b></h1>
-      <p>Pick your division, or <b style="color:var(--hero-ink);font-weight:500">Both</b> if you cover the whole family, fill in the blanks, and paste the result into Outlook, Thunderbird or Gmail. Same layout for everyone, your division's mark and accent colour, and "A division of" with the OGF mark underneath to tie it together.</p>
+      <p>Pick your division, or <b style="color:var(--hero-ink);font-weight:500">OGF</b> if you cover the whole family, fill in the blanks, and paste the result into Outlook, Thunderbird or Gmail. Same layout for everyone, your division's mark and accent colour, and "A division of" with the OGF mark underneath to tie it together.</p>
     </div>
     <div class="family" aria-label="The three marks">
       <div><img class="ogf" src="/*__HERO_OGF__*/" alt="OGF Manufacturing"></div>
@@ -204,8 +204,7 @@
         <div class="seg" role="group" aria-label="Division" id="seg">
           <button type="button" data-div="fearless" aria-pressed="true" style="--seg-accent:#4ba6e8"><i></i>Fearless</button>
           <button type="button" data-div="crossroads" aria-pressed="false" style="--seg-accent:#ff8d2a"><i></i>Crossroads</button>
-          <button type="button" data-div="both" aria-pressed="false" style="--seg-accent:#ff8d2a"><i></i>Both</button>
-          <button type="button" data-div="ogf" aria-pressed="false" style="--seg-accent:#4ba6e8"><i></i>OGF</button>
+          <button type="button" data-div="ogf" aria-pressed="false" style="--seg-accent:#ff8d2a"><i></i>OGF</button>
         </div>
       </div>
     </section>
@@ -328,7 +327,7 @@
             <h3>Roll it out to the whole company, with real dark-mode logos</h3>
             <p>If OGF's mail runs on Microsoft 365, an administrator can attach the signature server-side. Nobody installs anything, phones are covered, and because the HTML is never pasted into an editor it can carry the rules that switch the logos to white in dark mode. That swap works in Outlook on the web, new Outlook for Windows, Outlook for iOS and Android, Outlook for Mac and Apple Mail. Classic Outlook for Windows and Gmail ignore it and show the outlined logos.</p>
             <ol>
-              <li>Open the ready-made file for the division in <code>templates/exchange/</code> (fearless, crossroads, fearless-crossroads, ogf). It already uses Exchange attributes: <code>%%DisplayName%%</code>, <code>%%Title%%</code>, <code>%%MobilePhone%%</code>, <code>%%Email%%</code>, the division's office number and address, and the hosted images.</li>
+              <li>Open the ready-made file for the division in <code>templates/exchange/</code> (fearless, crossroads, ogf). It already uses Exchange attributes: <code>%%DisplayName%%</code>, <code>%%Title%%</code>, <code>%%MobilePhone%%</code>, <code>%%Email%%</code>, the division's office number and address, and the hosted images.</li>
               <li>Exchange admin center: <b>Mail flow → Rules → Add a rule → Apply disclaimers</b>. Condition: the sender is a member of that division's group. Action: append the disclaimer; paste the file's contents as the text. Fallback: Wrap.</li>
               <li>Make sure each person's Title and Mobile phone are filled in on their Microsoft 365 profile. The rule reads them from there.</li>
               <li>Send a test to a personal account and read it in Outlook on the web with dark mode on.</li>
@@ -466,6 +465,7 @@ function load() {
   const src = s || EXAMPLE;
   for (const f of fields) if (f in src) $("f-" + f).value = src[f] || "";
   if (s) { $("example-note").textContent = "Your entries are remembered in this browser only."; }
+  if (s && s.div === "both") s.div = "ogf";                                                        // the Both tab became the OGF tab
   state.div = (s && DIVISIONS[s.div]) ? s.div : "fearless";
   if (s && (!s.imgbase || /company\.com/.test(s.imgbase))) $("f-imgbase").value = EXAMPLE.imgbase;   // stale placeholder saved by an early version
   if (s && s.office === "(432) 555-0100") $("f-office").value = DIVISIONS[state.div].office;         // old example number

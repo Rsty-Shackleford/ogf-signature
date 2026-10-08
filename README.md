@@ -10,7 +10,7 @@ One layout for everyone at OGF Manufacturing, Fearless Manufacturing and Crossro
 ## Quick start for staff
 
 1. Open the builder link above.
-2. Pick your tab: **Fearless**, **Crossroads**, **Both** (you represent Fearless and Crossroads together) or **OGF**. The office number and address fill in for the division; change them if yours differ.
+2. Pick your tab: **Fearless**, **Crossroads** or **OGF** (you represent the whole family). The office number and address fill in for the division; change them if yours differ.
 3. Type your name, title, mobile and email. Website is optional until the company has one.
 4. Leave **Logo images** on Hosted and **Logo background** on Outlined unless the notes below give you a reason not to.
 5. Click **Copy signature**, then follow the **Install it** tab for your mail client (classic Outlook, new Outlook and web, Outlook for Mac, Thunderbird, Gmail).
@@ -25,16 +25,15 @@ The three buttons:
 
 If what lands in Outlook looks like code, the wrong button was used. Go back and press Copy signature.
 
-## The four signatures
+## The three signatures
 
-All four share one layout: the division mark on the left, a 3 px accent bar, the person's details on the right, and a footer line.
+All three share one layout: the division mark on the left, a 3 px accent bar, the person's details on the right, and a footer line (OGF has none).
 
 | Tab | Mark | Accent | Division line | Footer | Default office | Default address |
 |---|---|---|---|---|---|---|
 | Fearless | Fearless wordmark | Steel blue | Fearless Manufacturing | A DIVISION OF + OGF wordmark | (432) 631-0050 | 204 S Lincoln Ave · Odessa, TX 79761 |
 | Crossroads | Crossroads badge | Orange | Crossroads Diesel | A DIVISION OF + OGF wordmark | (432) 631-0050 | 8916 W County Rd 127 · Midland, TX 79706 |
-| Both | OGF wordmark | Orange | Crossroads Diesel, then Fearless Manufacturing on the next line | none (the mark is already OGF) | (432) 631-0050 | 8916 W County Rd 127 · Midland, TX 79706 |
-| OGF | OGF wordmark | Steel blue | OGF Manufacturing LLC | FEARLESS MANUFACTURING · CROSSROADS DIESEL (text) | (432) 631-0050 | 8916 W County Rd 127 · Midland, TX 79706 |
+| OGF | OGF wordmark | Orange | Crossroads Diesel, then Fearless Manufacturing on the next line | none (the mark is already OGF) | (432) 631-0050 | 8916 W County Rd 127 · Midland, TX 79706 |
 
 The OGF and Fearless marks in the signature are the wordmark-only versions (no MANUFACTURING line). The footer OGF wordmark is deliberately small, about one and three-quarter times the height of the caps beside it, so it reads as a logotype at the end of the phrase.
 
@@ -45,7 +44,7 @@ This folder is the live site. It is a git checkout of the repository above; push
 | File | What it is |
 |---|---|
 | `signature-generator.html` | The builder. `index.html` is an identical copy so the site root opens it. Self-contained: works offline from a double-click, logos embedded. |
-| `templates/fearless.html`, `crossroads.html`, `fearless-crossroads.html`, `ogf.html` | The same four signatures as plain HTML with `{{PLACEHOLDERS}}`, for hand editing or a server-side rollout. Office number and address are pre-filled per division. |
+| `templates/fearless.html`, `crossroads.html`, `ogf.html` | The same three signatures as plain HTML with `{{PLACEHOLDERS}}`, for hand editing or a server-side rollout. Office number and address are pre-filled per division. |
 | `img/` | The logo PNGs every sent email links to, at 2x for high-DPI screens. Four sets: `-outline` (transparent with a hair-thin white outline, the default), plain transparent, `-tile` (white panel) and `-white` (white logos for the server-side dark-mode swap). `index.html` there is the listing page the folder address shows. |
 | `templates/exchange/*.html` | Server-side versions for an Exchange mail-flow rule: Exchange attributes (`%%DisplayName%%` and friends) instead of placeholders, hosted images, and the dark-mode logo swap. Each is under Exchange's 5,000-character limit. |
 | `build/build_signature.py` | Single source of truth. `PIECES` is the signature HTML, `DIVISIONS` holds each tab's mark, colours, footer and defaults. Run it to regenerate the templates and the builder. |
@@ -92,10 +91,10 @@ No. No version of Outlook loads a signature from a web address. The route is: re
 | Role | Hex | Used for |
 |---|---|---|
 | Ink | `#0B0C0E` | Names, the OGF and Fearless wordmarks |
-| Steel | `#1F7FC4` | OGF and Fearless accent bar |
-| Steel, small type | `#17629B` | Titles and links on white (OGF, Fearless) |
+| Steel | `#1F7FC4` | Fearless accent bar |
+| Steel, small type | `#17629B` | Fearless titles and links on white |
 | Navy | `#0B3453` | Crossroads titles and links |
-| Orange | `#FF8D2A` | Crossroads accent bar; Both accent bar, titles and links; the StrataFlow orange |
+| Orange | `#FF8D2A` | Crossroads accent bar; OGF accent bar, titles and links; the StrataFlow orange |
 | Light blue | `#92BFD4` | Crossroads badge only |
 | Mid grey | `#62666C` | Division line, address |
 | Rule | `#D5D7DA` | Hairlines |
@@ -111,14 +110,14 @@ OGF and Fearless are black wordmarks, so black carries the name and the fine pri
 - **Hosting.** Public GitHub repository with GitHub Pages, chosen over Teams/SharePoint (sign-in walls) and consumer hosts (hotlink limits). The image file names and address are permanent from the first email sent. Custom domain to be added when the company has one.
 - **Dark mode, second pass.** Pasted signatures cannot swap images, so the default image set became outlined transparent PNGs that read on both backgrounds; plain and white-panel sets are kept as options. Server-side Exchange templates with a real light/white logo swap were added for Outlook on the web, new Outlook, the Outlook phone apps and Apple Mail.
 - **Phone layout.** The builder scales the preview to fit a phone screen and keeps the header strip, buttons and client tabs tidy at narrow widths. Phone screenshots used for the check live in `mobile/`, which git ignores.
-- **Both tab (8 October 2026).** Was Crossroads stacked over Fearless with the steel accent and a DIVISIONS OF footer. Now the OGF wordmark with the orange accent, orange titles and links, both divisions named under the name, the Midland address by default and no footer.
+- **Both and OGF tabs merged (8 October 2026).** The Both tab (Crossroads stacked over Fearless, steel accent, DIVISIONS OF footer) and the old OGF tab (OGF wordmark, steel accent, text footer) became one OGF tab: the OGF wordmark, orange accent, orange titles and links, both divisions named under the name, the Midland address by default and no footer. The `fearless-crossroads` templates were removed.
 - **Still open.** Company website and email domain are unknown, so the Website field is blank by default.
 
 ## Editing the design
 
 The signature HTML is written for mail clients: one table, every style inline, no CSS classes, width and height on every image, `margin:0 auto` plus `align="center"` for centred images, and `mso-line-height-rule` so Outlook honours line heights. Keep to those rules.
 
-To change anything for all four tabs at once, edit `PIECES` or `DIVISIONS` in `build/build_signature.py`, then:
+To change anything for all three tabs at once, edit `PIECES` or `DIVISIONS` in `build/build_signature.py`, then:
 
 ```
 python3 build/build_signature.py

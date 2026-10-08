@@ -33,19 +33,12 @@ DIVISIONS = {
         footer="A division of", footer_logo=True,
         office="(432) 631-0050", address="8916 W County Rd 127 · Midland, TX 79706",
     ),
-    # for people who represent both divisions at once: the OGF wordmark as the mark, orange accent, both divisions named, no footer (the mark already says OGF)
-    "both": dict(
+    # the whole family: the OGF wordmark as the mark, orange accent, both divisions named, no footer (the mark already says OGF)
+    "ogf": dict(
         name=["Crossroads Diesel", "Fearless Manufacturing"],      # one line each
         logos=[("ogf-logo.png", 170, 41, "OGF Manufacturing")],
         accent=ORANGE, type=ORANGE,
         footer=None, footer_logo=False,
-        office="(432) 631-0050", address="8916 W County Rd 127 · Midland, TX 79706",
-    ),
-    "ogf": dict(
-        name="OGF Manufacturing LLC",
-        logos=[("ogf-logo.png", 170, 41, "OGF Manufacturing")],
-        accent=STEEL, type=STEEL_TEXT,
-        footer="Fearless Manufacturing · Crossroads Diesel", footer_logo=False,
         office="(432) 631-0050", address="8916 W County Rd 127 · Midland, TX 79706",
     ),
 }
@@ -240,13 +233,13 @@ def main():
     os.makedirs(TPL, exist_ok=True)
     os.makedirs(os.path.join(TPL, "exchange"), exist_ok=True)
     for key in DIVISIONS:
-        fn = {"both": "fearless-crossroads"}.get(key, key) + ".html"
+        fn = key + ".html"
         html = exchange_template(key)
         with open(os.path.join(TPL, "exchange", fn), "w") as f:
             f.write(html)
         print("wrote templates/exchange/%s (%d characters)" % (fn, len(html)))
     for key in DIVISIONS:
-        fn = {"both": "fearless-crossroads"}.get(key, key) + ".html"
+        fn = key + ".html"
         with open(os.path.join(TPL, fn), "w") as f:
             f.write(static_template(key))
         print("wrote templates/" + fn)
