@@ -33,14 +33,13 @@ DIVISIONS = {
         footer="A division of", footer_logo=True,
         office="(432) 631-0050", address="8916 W County Rd 127 · Midland, TX 79706",
     ),
-    # for people who represent both divisions at once: one column, Crossroads over Fearless, centred, OGF accent, "Divisions of" footer
+    # for people who represent both divisions at once: the OGF wordmark as the mark, orange accent, both divisions named, no footer (the mark already says OGF)
     "both": dict(
         name=["Crossroads Diesel", "Fearless Manufacturing"],      # one line each
-        logos=[("crossroads-logo.png", 84, 85, "Crossroads Diesel"),
-               ("fearless-logo.png", 150, 26, "Fearless Manufacturing")],
-        accent=STEEL, type=STEEL_TEXT,
-        footer="Divisions of", footer_logo=True,
-        office="(432) 631-0050", address="",
+        logos=[("ogf-logo.png", 170, 41, "OGF Manufacturing")],
+        accent=ORANGE, type=ORANGE,
+        footer=None, footer_logo=False,
+        office="(432) 631-0050", address="8916 W County Rd 127 · Midland, TX 79706",
     ),
     "ogf": dict(
         name="OGF Manufacturing LLC",
@@ -167,7 +166,7 @@ def static_template(key):
             + fill(PIECES["row_links"], LINKS=PIECES["link_email"] + PIECES["link_sep"] + PIECES["link_web"])
             + (PIECES["row_address"] if d["address"] else ""))
     footer = PIECES["footer_logo"] if d["footer_logo"] else PIECES["footer_plain"]
-    footer = fill(footer, IMG_MARK=img_base + "ogf-mark.png", FOOTER=d["footer"])
+    footer = fill(footer, IMG_MARK=img_base + "ogf-mark.png", FOOTER=d["footer"]) if d["footer"] else ""
     sig = fill(PIECES["outer"], LOGO=logo, ROWS=rows, FOOTER=footer)
     sig = fill(sig, ACCENT=d["accent"], TYPE=d["type"], ADDRESS=d["address"],
                OFFICE=d["office"], OFFICE_TEL="+1" + re.sub(r"\D", "", d["office"]))
@@ -224,8 +223,10 @@ def exchange_template(key):
         footer = fill(PIECES["footer_logo"], FOOTER=d["footer"])
         footer = footer.replace(fill(PIECES["footer_logo"], FOOTER=d["footer"])[footer.index("<img"):footer.index(">", footer.index("<img")) + 1],
                                 logo_pair("ogf-mark.png", 58, 14, "OGF Manufacturing"))
-    else:
+    elif d["footer"]:
         footer = fill(PIECES["footer_plain"], FOOTER=d["footer"])
+    else:
+        footer = ""
     sig = fill(PIECES["outer"], LOGO=logo, ROWS=rows, FOOTER=footer)
     sig = fill(sig, ACCENT=d["accent"], TYPE=d["type"], ADDRESS=d["address"],
                OFFICE=d["office"], OFFICE_TEL="+1" + re.sub(r"\D", "", d["office"]), **EXCHANGE)

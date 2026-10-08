@@ -33,7 +33,7 @@ All four share one layout: the division mark on the left, a 3 px accent bar, the
 |---|---|---|---|---|---|---|
 | Fearless | Fearless wordmark | Steel blue | Fearless Manufacturing | A DIVISION OF + OGF wordmark | (432) 631-0050 | 204 S Lincoln Ave · Odessa, TX 79761 |
 | Crossroads | Crossroads badge | Orange | Crossroads Diesel | A DIVISION OF + OGF wordmark | (432) 631-0050 | 8916 W County Rd 127 · Midland, TX 79706 |
-| Both | Crossroads badge over the Fearless wordmark, centred, hairline between | Steel blue | Crossroads Diesel, then Fearless Manufacturing on the next line | DIVISIONS OF + OGF wordmark | (432) 631-0050 | none |
+| Both | OGF wordmark | Orange | Crossroads Diesel, then Fearless Manufacturing on the next line | none (the mark is already OGF) | (432) 631-0050 | 8916 W County Rd 127 · Midland, TX 79706 |
 | OGF | OGF wordmark | Steel blue | OGF Manufacturing LLC | FEARLESS MANUFACTURING · CROSSROADS DIESEL (text) | (432) 631-0050 | 8916 W County Rd 127 · Midland, TX 79706 |
 
 The OGF and Fearless marks in the signature are the wordmark-only versions (no MANUFACTURING line). The footer OGF wordmark is deliberately small, about one and three-quarter times the height of the caps beside it, so it reads as a logotype at the end of the phrase.
@@ -92,10 +92,10 @@ No. No version of Outlook loads a signature from a web address. The route is: re
 | Role | Hex | Used for |
 |---|---|---|
 | Ink | `#0B0C0E` | Names, the OGF and Fearless wordmarks |
-| Steel | `#1F7FC4` | OGF, Fearless and Both accent bar |
-| Steel, small type | `#17629B` | Titles and links on white (OGF, Fearless, Both) |
+| Steel | `#1F7FC4` | OGF and Fearless accent bar |
+| Steel, small type | `#17629B` | Titles and links on white (OGF, Fearless) |
 | Navy | `#0B3453` | Crossroads titles and links |
-| Orange | `#FF8D2A` | Crossroads accent bar; the StrataFlow orange |
+| Orange | `#FF8D2A` | Crossroads accent bar; Both accent bar, titles and links; the StrataFlow orange |
 | Light blue | `#92BFD4` | Crossroads badge only |
 | Mid grey | `#62666C` | Division line, address |
 | Rule | `#D5D7DA` | Hairlines |
@@ -106,11 +106,12 @@ OGF and Fearless are black wordmarks, so black carries the name and the fine pri
 
 - **Logos vectorised.** OGF and Fearless were traced from the high-resolution originals. The Crossroads badge existed only as a 221 px PNG, so it was rebuilt: gear, bowl, shoulders, road bands, triangles and star reconstructed as geometry; CROSSROADS and DIESEL letterforms traced; MOBILE REPAIR re-set in Barlow Condensed because the original was unreadable at that size. Its orange was changed to the StrataFlow orange, `#FF8D2A`.
 - **Wordmark-only marks** for OGF and Fearless in the signature, cut from the traced vectors with the tagline removed.
-- **Layout rules.** No two logos side by side; the Both tab stacks Crossroads above Fearless, centred, with a hairline. The footer OGF mark is small and follows "A DIVISION OF". "Mobile Repair" is dropped from all text; the company is written as Crossroads Diesel.
+- **Layout rules.** No two logos side by side. The footer OGF mark is small and follows "A DIVISION OF". "Mobile Repair" is dropped from all text; the company is written as Crossroads Diesel.
 - **Images are transparent** by default; the white-panel set is kept as an option for dark-mode readers.
 - **Hosting.** Public GitHub repository with GitHub Pages, chosen over Teams/SharePoint (sign-in walls) and consumer hosts (hotlink limits). The image file names and address are permanent from the first email sent. Custom domain to be added when the company has one.
 - **Dark mode, second pass.** Pasted signatures cannot swap images, so the default image set became outlined transparent PNGs that read on both backgrounds; plain and white-panel sets are kept as options. Server-side Exchange templates with a real light/white logo swap were added for Outlook on the web, new Outlook, the Outlook phone apps and Apple Mail.
 - **Phone layout.** The builder scales the preview to fit a phone screen and keeps the header strip, buttons and client tabs tidy at narrow widths. Phone screenshots used for the check live in `mobile/`, which git ignores.
+- **Both tab (8 October 2026).** Was Crossroads stacked over Fearless with the steel accent and a DIVISIONS OF footer. Now the OGF wordmark with the orange accent, orange titles and links, both divisions named under the name, the Midland address by default and no footer.
 - **Still open.** Company website and email domain are unknown, so the Website field is blank by default.
 
 ## Editing the design

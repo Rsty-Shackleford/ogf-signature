@@ -99,6 +99,7 @@
   .email.dark #preview a[style*="color:#0b0c0e"] { color: #e3e5e8 !important; }
   .email.dark #preview span { color: #4ba6e8 !important; }
   .email.dark #preview span[style*="color:#8b8e93"] { color: #9a9da2 !important; }
+  .email.dark #preview td[style*="color:#ff8d2a"], .email.dark #preview a[style*="color:#ff8d2a"], .email.dark #preview span[style*="color:#ff8d2a"] { color: #ff8d2a !important; }   /* orange is bright enough that dark-mode clients leave it alone */
   .email.dark #preview td[style*="border-top:1px solid"] { border-top-color: #383b40 !important; }
   .email .from em { color: #8b8e93; font-style: normal; }
 
@@ -203,7 +204,7 @@
         <div class="seg" role="group" aria-label="Division" id="seg">
           <button type="button" data-div="fearless" aria-pressed="true" style="--seg-accent:#4ba6e8"><i></i>Fearless</button>
           <button type="button" data-div="crossroads" aria-pressed="false" style="--seg-accent:#ff8d2a"><i></i>Crossroads</button>
-          <button type="button" data-div="both" aria-pressed="false" style="--seg-accent:#4ba6e8"><i></i>Both</button>
+          <button type="button" data-div="both" aria-pressed="false" style="--seg-accent:#ff8d2a"><i></i>Both</button>
           <button type="button" data-div="ogf" aria-pressed="false" style="--seg-accent:#4ba6e8"><i></i>OGF</button>
         </div>
       </div>
@@ -417,7 +418,7 @@ function buildSignature(v, mode) {
   if (links.length) rows += fill(PIECES.row_links, { LINKS: links.join(PIECES.link_sep) });
   if (v.address) rows += fill(PIECES.row_address, { ADDRESS: esc(v.address) });
 
-  const footer = fill(d.footer_logo ? PIECES.footer_logo : PIECES.footer_plain, { IMG_MARK: src("ogf-mark.png"), FOOTER: esc(d.footer) });
+  const footer = d.footer ? fill(d.footer_logo ? PIECES.footer_logo : PIECES.footer_plain, { IMG_MARK: src("ogf-mark.png"), FOOTER: esc(d.footer) }) : "";
   return fill(PIECES.outer, { LOGO: logo, ROWS: rows, FOOTER: footer, ACCENT: d.accent }).replace(/·/g, "&middot;");
 }
 
@@ -431,7 +432,7 @@ function plainText(v) {
   const lk = []; if (v.email) lk.push(v.email); if (v.web) lk.push(v.web);
   if (lk.length) lines.push(lk.join(" · "));
   if (v.address) lines.push(v.address);
-  lines.push(d.footer_logo ? d.footer + " OGF Manufacturing LLC" : d.footer);
+  if (d.footer) lines.push(d.footer_logo ? d.footer + " OGF Manufacturing LLC" : d.footer);
   return lines.join("\n");
 }
 
