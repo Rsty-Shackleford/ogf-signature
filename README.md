@@ -50,7 +50,7 @@ This folder is the live site. It is a git checkout of the repository above; push
 | `build/build_signature.py` | Single source of truth. `PIECES` is the signature HTML, `DIVISIONS` holds each tab's mark, colours, footer and defaults. Run it to regenerate the templates and the builder. |
 | `build/generator.template.html` | The builder page before the build script embeds the images and configuration. |
 
-The vector masters are on the shared drive beside each logo, not in this repository: `ogf/logo/`, `Fearless/logo/`, `Crossroads/logo/`. Each has `logo.svg` and `logo-white.svg` (for dark backgrounds). OGF and Fearless also have `options/logo-wordmark.svg` and `logo-wordmark-white.svg` without the MANUFACTURING line; these are what the signature uses. Crossroads also has one-colour `logo-mono.svg` and `logo-mono-white.svg`; in the white one the DIESEL letters and the small triangle are cut out so the background shows through. Mail clients do not render SVG, which is why the signature uses PNGs.
+The vector masters are on the shared drive beside each logo, not in this repository: `marketing/logo/svg/` (OGF), `fearless/fearless-marketing/logo/svg/` (Fearless), `crossroads/logo/` (Crossroads). Each has `logo.svg` and `logo-white.svg` (for dark backgrounds). OGF and Fearless also have `logo-wordmark.svg` and `logo-wordmark-white.svg` without the MANUFACTURING line; these are what the signature uses. Crossroads also has one-colour `logo-mono.svg` and `logo-mono-white.svg`; in the white one the DIESEL letters and the small triangle are cut out so the background shows through. Mail clients do not render SVG, which is why the signature uses PNGs.
 
 ## Logo images and hosting
 
