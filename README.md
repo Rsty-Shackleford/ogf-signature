@@ -13,9 +13,9 @@ One layout for everyone at OGF Manufacturing, Fearless Manufacturing and Crossro
 2. Pick your tab: **Fearless**, **Crossroads** or **OGF** (you represent the whole family). The office number and address fill in for the division; change them if yours differ.
 3. Type your name, title, mobile and email. Website is optional until the company has one.
 4. Leave **Logo images** on Hosted and **Logo background** on Outlined unless the notes below give you a reason not to.
-5. Click **Copy signature**, then follow the **Install it** tab for your mail client (classic Outlook, new Outlook and web, Outlook for Mac, Thunderbird, Gmail).
+5. Click **Copy signature**, then follow the **Install it** tab for your mail client (classic Outlook, new Outlook and web, Outlook for Mac, Gmail, Thunderbird). Stuck? Email tanner.weston@ogfmfg.com.
 
-The three buttons:
+The three buttons (**Copy signature** sits at the top of Step 4; the other two are under the Thunderbird tab, the only client that needs them):
 
 | Button | What it copies | Use it for |
 |---|---|---|
@@ -43,7 +43,7 @@ This folder is the live site. It is a git checkout of the repository above; push
 
 | File | What it is |
 |---|---|
-| `signature-generator.html` | The builder. `index.html` is an identical copy so the site root opens it. Self-contained: works offline from a double-click, logos embedded. |
+| `index.html` | The builder; the site root opens it. Self-contained: works offline from a double-click, logos embedded. |
 | `templates/fearless.html`, `crossroads.html`, `ogf.html` | The same three signatures as plain HTML with `{{PLACEHOLDERS}}`, for hand editing or a server-side rollout. Office number and address are pre-filled per division. |
 | `img/` | The logo PNGs every sent email links to, at 2x for high-DPI screens. Four sets: `-outline` (transparent with a hair-thin white outline, the default), plain transparent, `-tile` (white panel) and `-white` (white logos for the server-side dark-mode swap). `index.html` there is the listing page the folder address shows. |
 | `templates/exchange/*.html` | Server-side versions for an Exchange mail-flow rule: Exchange attributes (`%%DisplayName%%` and friends) instead of placeholders, hosted images, and the dark-mode logo swap. Each is under Exchange's 5,000-character limit. |
@@ -124,4 +124,4 @@ python3 build/build_signature.py
 git add -A && git commit -m "describe the change" && git push
 ```
 
-That rewrites `templates/*.html`, `signature-generator.html`, `index.html` and `img/index.html`, and the push updates the site.
+That rewrites `templates/*.html`, `index.html` and `img/index.html`, and the push updates the site.

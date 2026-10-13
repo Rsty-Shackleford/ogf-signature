@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>OGF Signature Builder</title>
+<title>OGF Email Signature Generator</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
 <style>
   :root {
@@ -31,7 +31,7 @@
   html, body { margin: 0; overflow-x: hidden; }
   body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
   img { max-width: 100%; }
-  .wrap { max-width: 1180px; margin-inline: auto; padding-inline: 16px; }
+  .wrap { max-width: 880px; margin-inline: auto; padding-inline: 16px; }
   .eyebrow { font-family: var(--display); font-weight: 500; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; }
 
   /* hero: black band, steel rule, the family strip */
@@ -50,13 +50,9 @@
 
   /* body grid */
   main .wrap { padding-block: 34px 10px; display: grid; gap: 24px; }
-  .cols { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 28px; align-items: start; }
-  .details { grid-column: 1; grid-row: 1 / span 2; }
-  .preview { grid-column: 2; grid-row: 1; }
-  .install { grid-column: 2; grid-row: 2; }
+  .cols { display: grid; grid-template-columns: 1fr; gap: 24px; }
   .pick .panel-head { padding-bottom: 10px; }
   .pick .panel-body { padding: 14px 20px 18px; }
-  .pick .seg { max-width: 420px; }
   section.panel { background: var(--surface); border: 1px solid var(--rule); min-width: 0; max-width: 100%; }
   .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 20px 12px; border-bottom: 1px solid var(--rule); }
   .panel-head .eyebrow { color: var(--accent-ink); }
@@ -65,7 +61,7 @@
 
   /* form */
   .seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--rule-strong); }
-  .seg button { appearance: none; background: transparent; border: 0; border-left: 1px solid var(--rule-strong); color: var(--mid); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; padding: 11px 6px; cursor: pointer; display: grid; gap: 6px; justify-items: center; }
+  .seg button { appearance: none; background: transparent; border: 0; border-left: 1px solid var(--rule-strong); color: var(--mid); font-family: var(--display); font-weight: 600; font-size: 17px; letter-spacing: .04em; text-transform: uppercase; padding: 14px 6px; cursor: pointer; display: grid; gap: 6px; justify-items: center; }
   .seg button:first-child { border-left: 0; }
   .seg button i { display: block; width: 26px; height: 4px; background: var(--rule-strong); }
   .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
@@ -80,6 +76,12 @@
   @media (max-width: 420px) { .two { grid-template-columns: 1fr; } }
   .note { color: var(--mid); font-size: 12.5px; margin: 14px 0 0; }
   .imgmode { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--rule); }
+  @media (min-width: 901px) {
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+    .imgmode { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+    .imgmode .imgcol + .imgcol .eyebrow { margin-top: 0 !important; }
+    .imgmode .note { grid-column: 1 / -1; }
+  }
   .imgmode .radio { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; margin-top: 10px; cursor: pointer; }
   .imgmode .radio input { margin: 3px 0 0; accent-color: var(--accent); }
   .imgmode .radio b { display: block; font-weight: 600; color: var(--ink); }
@@ -121,20 +123,10 @@
   .tabpanel li::marker { font-family: var(--display); font-weight: 700; color: var(--accent-ink); }
   .tabpanel code, .tabpanel kbd { font: 500 12.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: var(--bg); border: 1px solid var(--rule); padding: 2px 5px; }
   .tip { border-left: 3px solid var(--accent); padding: 8px 12px; background: var(--accent-soft); color: var(--body); margin-top: 12px; font-size: 13px; max-width: 68ch; }
-
-  /* palette */
-  .palette .wrap { padding-block: 10px 26px; display: block; }
-  .palette-inner { border-top: 1px solid var(--rule); padding-top: 22px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr); gap: 20px 40px; align-items: start; }
-  @media (max-width: 900px) { .palette-inner { grid-template-columns: 1fr; } }
-  .palette h2 { font-family: var(--display); font-weight: 600; font-size: 26px; line-height: 1; margin: 6px 0 10px; text-transform: uppercase; }
-  .palette p { margin: 0; color: var(--body); max-width: 50ch; }
-  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 12px; }
-  .sw { border: 1px solid var(--rule); background: var(--surface); }
-  .sw i { display: block; height: 54px; }
-  .sw div { padding: 8px 10px 9px; }
-  .sw b { display: block; font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
-  .sw span { display: block; font: 500 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--mid); }
-  .sw small { display: block; color: var(--soft); font-size: 11.5px; line-height: 1.35; margin-top: 3px; }
+  .tip a, .help a { color: var(--accent-ink); font-weight: 600; }
+  .lead { margin: 0 0 14px; color: var(--body); max-width: 68ch; }
+  .tabpanel .actions { margin: 8px 0 14px; }
+  .help { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--mid); font-size: 13px; }
 
   footer { background: var(--hero); color: var(--hero-soft); }
   footer .wrap { padding-block: 16px; display: flex; flex-wrap: wrap; gap: 8px 22px; }
@@ -160,8 +152,7 @@
     footer span { border-left: 0; padding-left: 0; }
   }
   @media (max-width: 900px) {
-    .cols { grid-template-columns: 1fr; grid-template-rows: none; gap: 20px; }
-    .details, .preview, .install { grid-column: auto; grid-row: auto; }
+    .cols { gap: 20px; }
     .preview { order: 1; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; box-shadow: 0 10px 24px rgba(0,0,0,.22); }
     .details { order: 2; }
     .install { order: 3; }
@@ -184,9 +175,8 @@
 <header class="hero">
   <div class="wrap">
     <div>
-      <div class="eyebrow">OGF Manufacturing · Fearless · Crossroads Diesel</div>
       <h1>One family.<br>One signature. <b>Three marks.</b></h1>
-      <p>Pick your division, or <b style="color:var(--hero-ink);font-weight:500">OGF</b> if you cover the whole family, fill in the blanks, and paste the result into Outlook, Thunderbird or Gmail. Same layout for everyone, your division's mark and accent colour, and "A division of" with the OGF mark underneath to tie it together.</p>
+      <p>Pick your division, fill in your details, then copy the signature and paste it into your email app.</p>
     </div>
     <div class="family" aria-label="The three marks">
       <div><img class="ogf" src="/*__HERO_OGF__*/" alt="OGF Manufacturing"></div>
@@ -215,6 +205,7 @@
         <div><div class="eyebrow">Step 2</div><h2 id="h-details">Your details</h2></div>
       </div>
       <div class="panel-body">
+        <div class="fields">
         <div class="field"><label for="f-name">Full name</label><input id="f-name" type="text" autocomplete="name" placeholder="First Last"></div>
         <div class="field"><label for="f-title">Title</label><input id="f-title" type="text" autocomplete="organization-title" placeholder="Shop Manager"></div>
         <div class="two">
@@ -224,18 +215,23 @@
         <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" autocomplete="email" placeholder="you@company.com"></div>
         <div class="field"><label for="f-web">Website <small>optional</small></label><input id="f-web" type="text" placeholder="www.company.com"></div>
         <div class="field"><label for="f-address">Address <small>optional</small></label><input id="f-address" type="text" placeholder="Street · City, TX 00000"></div>
+        </div>
         <p class="note" id="example-note">Example details are shown. Replace them with yours. Your entries stay in this browser only.</p>
 
         <div class="imgmode">
+          <div class="imgcol">
           <div class="eyebrow" style="color:var(--accent-ink)">Logo images</div>
-          <label class="radio"><input type="radio" name="imgmode" value="hosted" id="mode-hosted" checked><div><b>Hosted on the web (Outlook, Gmail)</b><span>The signature links to the logo files at the address below, which is already set up. Everyone's mail client fetches them from there.</span></div></label>
+          <label class="radio"><input type="radio" name="imgmode" value="hosted" id="mode-hosted" checked><div><b>Hosted on the web (Outlook, Gmail)</b><span>This option automatically downloads and displays your signature.</span></div></label>
           <div class="field" style="margin-left:28px"><label for="f-imgbase">Image folder <small>already set up; change only if the logos move</small></label><input id="f-imgbase" type="url" placeholder="https://rsty-shackleford.github.io/ogf-signature/img/"></div>
-          <label class="radio"><input type="radio" name="imgmode" value="embedded" id="mode-embedded"><div><b>Embedded in the signature (Thunderbird, Apple Mail)</b><span>The logo files are baked into the HTML itself. Nothing to host, but Gmail refuses embedded images and some Outlook versions turn them into attachments.</span></div></label>
+          <label class="radio"><input type="radio" name="imgmode" value="embedded" id="mode-embedded"><div><b>Embedded in the signature (Thunderbird, Apple Mail)</b><span>Depending on your email client, this option will embed your signature into the message body. Do not use with Gmail (Outlook may attach rather than embed).</span></div></label>
+          </div>
+          <div class="imgcol">
           <div class="eyebrow" style="color:var(--accent-ink);margin-top:20px">Logo background</div>
-          <label class="radio"><input type="radio" name="imgbg" value="outline" id="bg-outline" checked><div><b>Outlined (recommended)</b><span>Transparent, with a hair-thin white outline around the dark shapes. Invisible on a white message; in a dark-mode client it keeps the black wordmarks readable.</span></div></label>
-          <label class="radio"><input type="radio" name="imgbg" value="plain" id="bg-plain"><div><b>Plain transparent</b><span>No outline. The black wordmarks fade in dark-mode clients.</span></div></label>
-          <label class="radio"><input type="radio" name="imgbg" value="tile" id="bg-tile"><div><b>White panel</b><span>Each logo on a small white panel. Always readable, at the cost of a visible box in dark mode.</span></div></label>
-          <p class="note" style="margin-top:12px">Mail clients never let a pasted signature switch to white logos in dark mode. If that matters, the server-side route under <b>Everyone at once</b> does it for Outlook on the web, new Outlook, the Outlook phone apps and Apple Mail.</p>
+          <label class="radio"><input type="radio" name="imgbg" value="outline" id="bg-outline" checked><div><b>Outlined (recommended)</b><span>Best for light and dark mode.</span></div></label>
+          <label class="radio"><input type="radio" name="imgbg" value="plain" id="bg-plain"><div><b>Plain transparent</b><span>Best for light mode. Will not be legible with dark mode.</span></div></label>
+          <label class="radio"><input type="radio" name="imgbg" value="tile" id="bg-tile"><div><b>White panel</b><span>Best for light mode. Will display a white background panel in dark mode.</span></div></label>
+          </div>
+          <p class="note" style="margin-top:12px;color:var(--accent-ink);font-style:italic">Not sure? Leave both on the first option. It works in every email app, light or dark.</p>
         </div>
       </div>
     </section>
@@ -250,7 +246,6 @@
             <p class="from"><em>From:</em> <span id="pv-from">you</span> &nbsp; <em>Subject:</em> Re: Tuesday's pump</p>
             <div id="preview"></div>
           </div>
-          <p class="note" id="dark-note" hidden>Simulated: dark-mode clients lighten your text and leave the images as they are. Switch <b>Logo background</b> to compare the three choices.</p>
         </div>
       </section>
 
@@ -261,109 +256,97 @@
         <div class="panel-body">
           <div class="actions">
             <button type="button" class="btn primary" id="copy-rich"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="5" width="9" height="9"/><path d="M11 5V2H2v9h3"/></svg>Copy signature</button>
-            <button type="button" class="btn" id="copy-html">Copy HTML source</button>
-            <button type="button" class="btn accent" id="download" hidden>Download .html</button>
           </div>
+          <p class="lead">Click <b>Copy signature</b>, then pick your email app below and follow the steps.<br><span style="color:var(--accent-ink);font-style:italic">Do not paste the signature into an email. Paste it into your email app's signature settings, as the steps show.</span></p>
           <div class="tabs" role="tablist" aria-label="Mail client">
             <button class="tab" role="tab" aria-selected="true" aria-controls="t-outlook" id="tab-outlook">Outlook (Windows)</button>
             <button class="tab" role="tab" aria-selected="false" aria-controls="t-newoutlook" id="tab-newoutlook">New Outlook &amp; web</button>
             <button class="tab" role="tab" aria-selected="false" aria-controls="t-mac" id="tab-mac">Outlook (Mac)</button>
-            <button class="tab" role="tab" aria-selected="false" aria-controls="t-tb" id="tab-tb">Thunderbird</button>
             <button class="tab" role="tab" aria-selected="false" aria-controls="t-gmail" id="tab-gmail">Gmail</button>
-            <button class="tab" role="tab" aria-selected="false" aria-controls="t-all" id="tab-all">Everyone at once</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="t-tb" id="tab-tb">Thunderbird</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="t-all" id="tab-all">IT admin</button>
           </div>
 
           <div class="tabpanel" role="tabpanel" id="t-outlook" aria-labelledby="tab-outlook">
             <h3>Classic Outlook for Windows</h3>
-            <p>Outlook cannot load a signature from a web address. You paste the rendered signature instead, which keeps the table, colours and logo.</p>
+            <p>Classic Outlook has a <b>File</b> menu in the top-left corner. No File menu? Use the <b>New Outlook &amp; web</b> tab instead.</p>
             <ol>
-              <li>Set <b>Logo images</b> to <b>Hosted</b> and check the folder URL, then click <b>Copy signature</b>.</li>
-              <li>In Outlook: <b>File → Options → Mail → Signatures…</b></li>
-              <li>Click <b>New</b>, name it (for example <code>Fearless</code>), click into the big editing box and press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
-              <li>Under <b>Choose default signature</b>, set it for <b>New messages</b> and <b>Replies/forwards</b>, then <b>OK</b>.</li>
+              <li>Click <b>Copy signature</b> above.</li>
+              <li>In Outlook, click <b>File</b> → <b>Options</b> → <b>Mail</b> → <b>Signatures…</b></li>
+              <li>Click <b>New</b>, type a name (for example <code>Work</code>) and click <b>OK</b>.</li>
+              <li>Click inside the large <b>Edit signature</b> box and press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
+              <li>On the right, under <b>Choose default signature</b>, pick your new signature for both <b>New messages</b> and <b>Replies/forwards</b>.</li>
+              <li>Click <b>OK</b>, then start a new email to check it.</li>
             </ol>
-            <div class="tip">If the logo shows as a red X after pasting, Outlook could not reach the image URL. Fix the folder URL, or switch to <b>Embedded</b> and paste again. Pasting from Edge or Chrome works best.</div>
+            <div class="tip">Logo shows as a red X after pasting? Email <a href="mailto:tanner.weston@ogfmfg.com">tanner.weston@ogfmfg.com</a>.</div>
           </div>
           <div class="tabpanel" role="tabpanel" id="t-newoutlook" aria-labelledby="tab-newoutlook" hidden>
             <h3>New Outlook and Outlook on the web</h3>
-            <p>Same idea: paste the rendered signature. These versions store the signature in your Microsoft 365 mailbox, so it follows you to any computer.</p>
+            <p>This is the Outlook with a <b>New Outlook</b> switch at the top right, and Outlook in a web browser.</p>
             <ol>
-              <li>Set <b>Logo images</b> to <b>Hosted</b>, then click <b>Copy signature</b>.</li>
-              <li>Click the gear icon → <b>Accounts → Signatures</b> (on the web: <b>Settings → Mail → Compose and reply</b>).</li>
-              <li>Click <b>New signature</b>, give it a name, click into the editor and press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
-              <li>Pick it as the default for new messages and for replies, then <b>Save</b>.</li>
+              <li>Click <b>Copy signature</b> above.</li>
+              <li>In Outlook, click the gear icon (<b>Settings</b>) at the top right.</li>
+              <li>Go to <b>Accounts</b> → <b>Signatures</b>.</li>
+              <li>Click <b>New signature</b>, type a name, click inside the editor box and press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
+              <li>Under <b>Select default signatures</b>, pick it for both <b>New messages</b> and <b>Replies/forwards</b>.</li>
+              <li>Click <b>Save</b>, then start a new email to check it.</li>
             </ol>
           </div>
           <div class="tabpanel" role="tabpanel" id="t-mac" aria-labelledby="tab-mac" hidden>
             <h3>Outlook for Mac</h3>
             <ol>
-              <li>Set <b>Logo images</b> to <b>Hosted</b> (or <b>Embedded</b>, both work on Mac), then click <b>Copy signature</b>.</li>
-              <li><b>Outlook → Settings → Signatures</b>, click <b>+</b>.</li>
-              <li>Click into the signature body and press <kbd>⌘</kbd>+<kbd>V</kbd>. Name it and close the window.</li>
-              <li>At the bottom of the Signatures pane, choose it as the default for your account.</li>
+              <li>Click <b>Copy signature</b> above.</li>
+              <li>In Outlook, click the <b>Outlook</b> menu → <b>Settings</b> → <b>Signatures</b>.</li>
+              <li>Click <b>+</b>, type a name, click inside the signature box and press <kbd>⌘</kbd>+<kbd>V</kbd>. Close the editor window.</li>
+              <li>Under <b>Choose default signature</b>, pick it for both <b>New messages</b> and <b>Replies/forwards</b>.</li>
+            </ol>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="t-gmail" aria-labelledby="tab-gmail" hidden>
+            <h3>Gmail</h3>
+            <p>Leave <b>Logo images</b> (Step 2) on <b>Hosted</b>. Gmail does not accept embedded logos.</p>
+            <ol>
+              <li>Click <b>Copy signature</b> above.</li>
+              <li>In Gmail, click the gear icon → <b>See all settings</b>.</li>
+              <li>On the <b>General</b> tab, scroll down to <b>Signature</b> and click <b>Create new</b>. Type a name and click <b>Create</b>.</li>
+              <li>Click inside the signature box and press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
+              <li>Under <b>Signature defaults</b>, pick it for <b>For new emails use</b> and <b>On reply/forward use</b>.</li>
+              <li>Scroll to the bottom and click <b>Save Changes</b>.</li>
             </ol>
           </div>
           <div class="tabpanel" role="tabpanel" id="t-tb" aria-labelledby="tab-tb" hidden>
             <h3>Thunderbird</h3>
-            <p>Thunderbird can read the signature straight from a file, which is the easiest route of all.</p>
+            <p>Thunderbird reads the signature from a file instead of a paste.</p>
+            <div class="actions">
+              <button type="button" class="btn accent" id="download" hidden>Download .html</button>
+              <button type="button" class="btn" id="copy-html">Copy HTML source</button>
+            </div>
             <ol>
-              <li>Set <b>Logo images</b> to <b>Embedded</b>, then click <b>Download .html</b> (or <b>Copy HTML source</b> and save it as <code>signature.html</code>).</li>
-              <li><b>Account Settings</b> → pick your account.</li>
-              <li>Tick <b>Attach the signature from a file instead</b>, click <b>Choose…</b> and select the file.</li>
-              <li>Thunderbird embeds the logo in each message as an inline image, so recipients see it without loading remote content.</li>
+              <li>Under <b>Logo images</b> (Step 2), choose <b>Embedded</b>.</li>
+              <li>Click <b>Download .html</b> above and save the file somewhere you will not delete it.</li>
+              <li>In Thunderbird, open the <b>≡</b> menu → <b>Account Settings</b> and click your email address on the left.</li>
+              <li>Tick <b>Attach the signature from a file instead</b>, click <b>Choose…</b> and pick the file you saved.</li>
             </ol>
-            <div class="tip">Prefer pasting? Tick <b>Use HTML</b> on the account page and paste the <b>HTML source</b> (not the rendered signature) into the signature box.</div>
-          </div>
-          <div class="tabpanel" role="tabpanel" id="t-gmail" aria-labelledby="tab-gmail" hidden>
-            <h3>Gmail</h3>
-            <ol>
-              <li>Set <b>Logo images</b> to <b>Hosted</b>. Gmail strips embedded images.</li>
-              <li>Click <b>Copy signature</b>.</li>
-              <li>In Gmail: gear → <b>See all settings → General → Signature → Create new</b>.</li>
-              <li>Click into the editor, press <kbd>Ctrl</kbd>+<kbd>V</kbd>, set the signature defaults below it and <b>Save Changes</b> at the bottom.</li>
-            </ol>
+            <div class="tip">No Download button? Click <b>Copy HTML source</b>, paste it into Notepad and save it as <code>signature.html</code>.</div>
           </div>
           <div class="tabpanel" role="tabpanel" id="t-all" aria-labelledby="tab-all" hidden>
-            <h3>Roll it out to the whole company, with real dark-mode logos</h3>
-            <p>If OGF's mail runs on Microsoft 365, an administrator can attach the signature server-side. Nobody installs anything, phones are covered, and because the HTML is never pasted into an editor it can carry the rules that switch the logos to white in dark mode. That swap works in Outlook on the web, new Outlook for Windows, Outlook for iOS and Android, Outlook for Mac and Apple Mail. Classic Outlook for Windows and Gmail ignore it and show the outlined logos.</p>
+            <h3>For the IT admin: add it to everyone's mail server-side</h3>
+            <p>On Microsoft 365, an admin can attach the signature to every outgoing message with an Exchange mail-flow rule. Nobody installs anything, phones are covered, and the logos switch to white in dark mode. Full details are in the README on GitHub.</p>
             <ol>
-              <li>Open the ready-made file for the division in <code>templates/exchange/</code> (fearless, crossroads, ogf). It already uses Exchange attributes: <code>%%DisplayName%%</code>, <code>%%Title%%</code>, <code>%%MobilePhone%%</code>, <code>%%Email%%</code>, the division's office number and address, and the hosted images.</li>
-              <li>Exchange admin center: <b>Mail flow → Rules → Add a rule → Apply disclaimers</b>. Condition: the sender is a member of that division's group. Action: append the disclaimer; paste the file's contents as the text. Fallback: Wrap.</li>
-              <li>Make sure each person's Title and Mobile phone are filled in on their Microsoft 365 profile. The rule reads them from there.</li>
-              <li>Send a test to a personal account and read it in Outlook on the web with dark mode on.</li>
+              <li>Open the division's file in <code>templates/exchange/</code>. It already uses <code>%%DisplayName%%</code>, <code>%%Title%%</code>, <code>%%MobilePhone%%</code> and <code>%%Email%%</code>.</li>
+              <li>Exchange admin center: <b>Mail flow → Rules → Add a rule → Apply disclaimers</b>. Condition: sender is a member of the division's group. Action: append; paste the file's contents. Fallback: Wrap.</li>
+              <li>Fill in each person's Title and Mobile phone on their Microsoft 365 profile.</li>
+              <li>Send a test to an outside account and read it in Outlook on the web with dark mode on.</li>
             </ol>
-            <div class="tip">A mail-flow rule adds the signature at the very bottom of the message, below quoted replies. Exclaimer or CodeTwo place it under the newest reply instead and accept the same HTML, if that matters.</div>
           </div>
+          <p class="help">Stuck, or something looks wrong? Email <a href="mailto:tanner.weston@ogfmfg.com">tanner.weston@ogfmfg.com</a> for help.</p>
         </div>
       </section>
     </div>
   </div>
 </main>
 
-<section class="palette" aria-labelledby="h-palette">
-  <div class="wrap">
-    <div class="palette-inner">
-      <div>
-        <div class="eyebrow" style="color:var(--accent-ink)">Why it hangs together</div>
-        <h2 id="h-palette">One palette, three marks</h2>
-        <p>OGF and Fearless are black wordmarks, so black carries the name and the fine print. The steel blue was chosen to sit beside the Crossroads navy, and it is the only accent OGF and Fearless use. Orange is reserved for Crossroads. Every signature uses the same type, spacing and grey, so the three read as one family side by side.</p>
-      </div>
-      <div class="swatches">
-        <div class="sw"><i style="background:#0b0c0e"></i><div><b>Ink</b><span>#0B0C0E</span><small>Names, OGF and Fearless marks</small></div></div>
-        <div class="sw"><i style="background:#1f7fc4"></i><div><b>Steel</b><span>#1F7FC4</span><small>OGF and Fearless accent bar</small></div></div>
-        <div class="sw"><i style="background:#17629b"></i><div><b>Steel, small type</b><span>#17629B</span><small>Titles and links on white</small></div></div>
-        <div class="sw"><i style="background:#0b3453"></i><div><b>Navy</b><span>#0B3453</span><small>Crossroads titles and links</small></div></div>
-        <div class="sw"><i style="background:#ff8d2a"></i><div><b>Orange</b><span>#FF8D2A</span><small>Crossroads accent bar, shared with StrataFlow</small></div></div>
-        <div class="sw"><i style="background:#92bfd4"></i><div><b>Light blue</b><span>#92BFD4</span><small>Crossroads badge only</small></div></div>
-        <div class="sw"><i style="background:#62666c"></i><div><b>Mid grey</b><span>#62666C</span><small>Division line, address</small></div></div>
-        <div class="sw"><i style="background:#d5d7da"></i><div><b>Rule</b><span>#D5D7DA</span><small>Hairlines</small></div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <footer>
-  <div class="wrap eyebrow"><span>OGF Manufacturing LLC</span><span>Odessa, Texas</span><span>Signature kit</span></div>
+  <div class="wrap eyebrow"><span>OGF Email Signature Generator</span></div>
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -375,7 +358,7 @@
 
 const $ = (id) => document.getElementById(id);
 const fields = ["name","title","mobile","office","email","web","address","imgbase"];
-const EXAMPLE = { name: "Alex Morgan", title: "Service Manager", mobile: "(432) 555-0142", email: "alex.morgan@example.com", web: "", imgbase: "https://rsty-shackleford.github.io/ogf-signature/img/" };
+const EXAMPLE = { name: "John Doe", title: "Service Manager", mobile: "(432) 555-0142", email: "john.doe@example.com", web: "", imgbase: "https://rsty-shackleford.github.io/ogf-signature/img/" };
 let state = { div: "fearless", mode: "hosted", bg: "outline", dark: false };
 
 function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -469,6 +452,8 @@ function load() {
   state.div = (s && DIVISIONS[s.div]) ? s.div : "fearless";
   if (s && (!s.imgbase || /company\.com/.test(s.imgbase))) $("f-imgbase").value = EXAMPLE.imgbase;   // stale placeholder saved by an early version
   if (s && s.office === "(432) 555-0100") $("f-office").value = DIVISIONS[state.div].office;         // old example number
+  if (s && s.name === "Alex Morgan") $("f-name").value = EXAMPLE.name;                                 // old example person
+  if (s && s.email === "alex.morgan@example.com") $("f-email").value = EXAMPLE.email;
   state.mode = (s && s.mode === "embedded") ? "embedded" : "hosted";
   if (!s) { $("f-address").value = DIVISIONS[state.div].address; $("f-office").value = DIVISIONS[state.div].office; }
   state.bg = (s && (s.bg === "tile" || s.bg === "plain")) ? s.bg : "outline";
@@ -544,7 +529,7 @@ for (const f of fields) $("f-" + f).addEventListener("input", render);
 for (const b of document.querySelectorAll("#seg button")) b.addEventListener("click", () => setDivision(b.dataset.div));
 for (const r of document.querySelectorAll('input[name="imgmode"]')) r.addEventListener("change", () => { state.mode = r.value; render(); });
 for (const r of document.querySelectorAll('input[name="imgbg"]')) r.addEventListener("change", () => { state.bg = r.value; render(); });
-$("pv-dark").addEventListener("change", (e) => { $("email").classList.toggle("dark", e.target.checked); $("dark-note").hidden = !e.target.checked; });
+$("pv-dark").addEventListener("change", (e) => { $("email").classList.toggle("dark", e.target.checked); });
 $("copy-rich").addEventListener("click", copyRich);
 $("copy-html").addEventListener("click", copyHtml);
 $("download").addEventListener("click", download);

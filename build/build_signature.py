@@ -3,7 +3,7 @@
 
 Single source of truth for the signature HTML. Writes:
   ../templates/<division>.html   fill-in-the-blank templates ({{NAME}} etc.)
-  ../signature-generator.html    self-contained generator page (logos embedded)
+  ../index.html                  self-contained generator page (logos embedded)
 Run from anywhere:  python3 build_signature.py
 """
 import base64, json, os, re
@@ -171,7 +171,7 @@ def static_template(key):
         "<!-- " + " / ".join(d["name"] if isinstance(d["name"], list) else [d["name"]]).replace("·", "&middot;") + " email signature template.\n"
         "     Replace every {{PLACEHOLDER}}. Delete a row you do not need (each <tr>...</tr> is one line of the signature).\n"
         "     Images: ../img/ paths work for Thunderbird's 'attach signature from file'. For Outlook and Gmail,\n"
-        "     replace them with the hosted URLs (see README.md), or use signature-generator.html which does all of this for you. -->\n"
+        "     replace them with the hosted URLs (see README.md), or use index.html (the builder) which does all of this for you. -->\n"
         + sig + "\n"
     )
 
@@ -256,15 +256,13 @@ def main():
         with open(path, "rb") as f:
             return "data:image/svg+xml;base64," + base64.b64encode(f.read()).decode()
     OGFROOT = os.path.dirname(ROOT)
-    gen = gen.replace("/*__HERO_OGF__*/", svg_uri(os.path.join(OGFROOT, "ogf", "logo", "logo-white.svg")))
-    gen = gen.replace("/*__HERO_FEARLESS__*/", svg_uri(os.path.join(OGFROOT, "Fearless", "logo", "logo-white.svg")))
-    gen = gen.replace("/*__HERO_CROSSROADS__*/", svg_uri(os.path.join(OGFROOT, "Crossroads", "logo", "logo-mono-white.svg")))
+    gen = gen.replace("/*__HERO_OGF__*/", svg_uri(os.path.join(OGFROOT, "marketing", "logo", "svg", "logo-white.svg")))
+    gen = gen.replace("/*__HERO_FEARLESS__*/", svg_uri(os.path.join(OGFROOT, "fearless", "fearless-marketing", "logo", "svg", "logo-white.svg")))
+    gen = gen.replace("/*__HERO_CROSSROADS__*/", svg_uri(os.path.join(OGFROOT, "crossroads", "logo", "logo-mono-white.svg")))
     gen = gen.replace("/*__PIECES__*/", "const PIECES = " + json.dumps(PIECES) + ";")
     gen = gen.replace("/*__DIVISIONS__*/", "const DIVISIONS = " + json.dumps(DIVISIONS) + ";")
     gen = gen.replace("/*__IMAGES__*/", "const IMAGES = " + json.dumps(images) + ";")
-    with open(os.path.join(ROOT, "signature-generator.html"), "w") as f:
-        f.write(gen)
-    with open(os.path.join(ROOT, "index.html"), "w") as f:   # same page at the site root
+    with open(os.path.join(ROOT, "index.html"), "w") as f:   # the site root opens the builder
         f.write(gen)
     # img/index.html: the image folder address shows what is there (static hosts do not list folders)
     pngs = sorted(fn for fn in os.listdir(IMG) if fn.endswith(".png"))
@@ -277,7 +275,7 @@ def main():
                 'li img{height:40px;width:auto;max-width:120px;background:repeating-conic-gradient(#e5e7ea 0 25%,#fff 0 50%) 0 0/16px 16px}code{font-size:12px}</style></head><body>'
                 '<h1>OGF signature images</h1><p>These files are linked from every OGF, Fearless and Crossroads email signature. Do not rename, move or delete them. The <code>-tile</code> files are the same logos on a white panel.</p>'
                 '<ul>' + rows + '</ul></body></html>')
-    print("wrote signature-generator.html (%d KB)" % (len(gen) // 1024))
+    print("wrote index.html (%d KB)" % (len(gen) // 1024))
     # optional: a copy without the document skeleton, for hosting in a viewer that supplies its own
     out = os.environ.get("ARTIFACT_OUT")
     if out:
