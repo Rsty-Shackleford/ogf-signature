@@ -6,7 +6,7 @@ Single source of truth for the signature HTML. Writes:
   ../index.html                  self-contained generator page (logos embedded)
 Run from anywhere:  python3 build_signature.py
 """
-import base64, json, os, re
+import base64, hashlib, json, os, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -136,6 +136,22 @@ def fill(s, **kw):
     return s
 
 
+def write_text(path, text):
+    """UTF-8 with LF line endings on every platform, so the output (and the script hash in the CSP) is the same wherever the build runs."""
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+
+
+def js_json(obj):
+    """JSON for embedding inside <script>: no value may be able to close or confuse the script element."""
+    return json.dumps(obj).replace("</", "\\u003c/").replace("<!--", "\\u003c!--")
+
+
+# The builder page may run only its own inline script (matched by hash), load fonts from Google Fonts, and show images.
+CSP = ("default-src 'none'; script-src 'sha256-%s'; style-src 'unsafe-inline' https://fonts.googleapis.com; "
+       "font-src https://fonts.gstatic.com; img-src data: https:; base-uri 'none'; form-action 'none'")
+
+
 def static_template(key):
     """Fill-in-the-blank version: every row present, person fields left as {{PLACEHOLDERS}}."""
     d = DIVISIONS[key]
@@ -235,13 +251,11 @@ def main():
     for key in DIVISIONS:
         fn = key + ".html"
         html = exchange_template(key)
-        with open(os.path.join(TPL, "exchange", fn), "w") as f:
-            f.write(html)
+        write_text(os.path.join(TPL, "exchange", fn), html)
         print("wrote templates/exchange/%s (%d characters)" % (fn, len(html)))
     for key in DIVISIONS:
         fn = key + ".html"
-        with open(os.path.join(TPL, fn), "w") as f:
-            f.write(static_template(key))
+        write_text(os.path.join(TPL, fn), static_template(key))
         print("wrote templates/" + fn)
 
     images = {}
@@ -250,7 +264,8 @@ def main():
             with open(os.path.join(IMG, fn), "rb") as f:
                 images[fn] = "data:image/png;base64," + base64.b64encode(f.read()).decode()
 
-    gen = open(os.path.join(HERE, "generator.template.html")).read()
+    with open(os.path.join(HERE, "generator.template.html"), encoding="utf-8") as f:
+        gen = f.read()
     # hero band: the white vector marks, as data URIs so the page stays one file
     def svg_uri(path):
         with open(path, "rb") as f:
@@ -259,31 +274,35 @@ def main():
     gen = gen.replace("/*__HERO_OGF__*/", svg_uri(os.path.join(OGFROOT, "marketing", "logo", "svg", "logo-white.svg")))
     gen = gen.replace("/*__HERO_FEARLESS__*/", svg_uri(os.path.join(OGFROOT, "fearless", "fearless-marketing", "logo", "svg", "logo-white.svg")))
     gen = gen.replace("/*__HERO_CROSSROADS__*/", svg_uri(os.path.join(OGFROOT, "crossroads", "logo", "logo-mono-white.svg")))
-    gen = gen.replace("/*__PIECES__*/", "const PIECES = " + json.dumps(PIECES) + ";")
-    gen = gen.replace("/*__DIVISIONS__*/", "const DIVISIONS = " + json.dumps(DIVISIONS) + ";")
-    gen = gen.replace("/*__IMAGES__*/", "const IMAGES = " + json.dumps(images) + ";")
-    with open(os.path.join(ROOT, "index.html"), "w") as f:   # the site root opens the builder
-        f.write(gen)
+    gen = gen.replace("/*__PIECES__*/", "const PIECES = " + js_json(PIECES) + ";")
+    gen = gen.replace("/*__DIVISIONS__*/", "const DIVISIONS = " + js_json(DIVISIONS) + ";")
+    gen = gen.replace("/*__IMAGES__*/", "const IMAGES = " + js_json(images) + ";")
+    # Content-Security-Policy: hash the finished inline script so the browser runs that script and nothing else
+    scripts = re.findall(r"<script>(.*?)</script>", gen, re.S)
+    assert len(scripts) == 1, "expected exactly one inline <script> in the builder page"
+    digest = base64.b64encode(hashlib.sha256(scripts[0].encode("utf-8")).digest()).decode()
+    gen = gen.replace("/*__CSP__*/", CSP % digest)
+    write_text(os.path.join(ROOT, "index.html"), gen)   # the site root opens the builder
     # img/index.html: the image folder address shows what is there (static hosts do not list folders)
     pngs = sorted(fn for fn in os.listdir(IMG) if fn.endswith(".png"))
     rows = "".join('<li><a href="%s"><img src="%s" alt=""><code>%s</code></a></li>' % (fn, fn, fn) for fn in pngs)
-    with open(os.path.join(IMG, "index.html"), "w") as f:
-        f.write('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+    write_text(os.path.join(IMG, "index.html"), (
+                '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
                 '<title>Signature images</title><style>body{font-family:Arial,sans-serif;margin:32px;color:#0b0c0e;background:#f0f1f2}'
                 'h1{font-size:20px;margin:0 0 6px}p{margin:0 0 20px;color:#62666c;max-width:60ch}ul{list-style:none;padding:0;margin:0;display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}'
                 'li a{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #d5d7da;padding:12px 14px;text-decoration:none;color:#0b0c0e}'
                 'li img{height:40px;width:auto;max-width:120px;background:repeating-conic-gradient(#e5e7ea 0 25%,#fff 0 50%) 0 0/16px 16px}code{font-size:12px}</style></head><body>'
                 '<h1>OGF signature images</h1><p>These files are linked from every OGF, Fearless and Crossroads email signature. Do not rename, move or delete them. The <code>-tile</code> files are the same logos on a white panel.</p>'
-                '<ul>' + rows + '</ul></body></html>')
+                '<ul>' + rows + '</ul></body></html>'))
     print("wrote index.html (%d KB)" % (len(gen) // 1024))
     # optional: a copy without the document skeleton, for hosting in a viewer that supplies its own
     out = os.environ.get("ARTIFACT_OUT")
     if out:
         art = re.sub(r"<!DOCTYPE html>\s*<html[^>]*>\s*<head>\s*", "", gen)
-        art = re.sub(r'<meta (charset="utf-8"|name="viewport"[^>]*)>\n', "", art)
+        # the viewer applies its own policy, so the page's CSP and referrer tags go too
+        art = re.sub(r'<meta (charset="utf-8"|name="viewport"[^>]*|http-equiv="Content-Security-Policy"[^>]*|name="referrer"[^>]*)>\n', "", art)
         art = art.replace("</head>\n<body>", "").replace("</body>\n</html>", "")
-        with open(out, "w") as f:
-            f.write(art)
+        write_text(out, art)
         print("wrote", out)
 
 

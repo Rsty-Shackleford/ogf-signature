@@ -49,6 +49,7 @@ This folder is the live site. It is a git checkout of the repository above; push
 | `templates/exchange/*.html` | Server-side versions for an Exchange mail-flow rule: Exchange attributes (`%%DisplayName%%` and friends) instead of placeholders, hosted images, and the dark-mode logo swap. Each is under Exchange's 5,000-character limit. |
 | `build/build_signature.py` | Single source of truth. `PIECES` is the signature HTML, `DIVISIONS` holds each tab's mark, colours, footer and defaults. Run it to regenerate the templates and the builder. |
 | `build/generator.template.html` | The builder page before the build script embeds the images and configuration. |
+| `.nojekyll` | Empty on purpose. Tells GitHub Pages to serve the files as they are. |
 
 The vector masters are on the shared drive beside each logo, not in this repository: `marketing/logo/svg/` (OGF), `fearless/fearless-marketing/logo/svg/` (Fearless), `crossroads/logo/` (Crossroads). Each has `logo.svg` and `logo-white.svg` (for dark backgrounds). OGF and Fearless also have `logo-wordmark.svg` and `logo-wordmark-white.svg` without the MANUFACTURING line; these are what the signature uses. Crossroads also has one-colour `logo-mono.svg` and `logo-mono-white.svg`; in the white one the DIESEL letters and the small triangle are cut out so the background shows through. Mail clients do not render SVG, which is why the signature uses PNGs.
 
@@ -112,6 +113,25 @@ OGF and Fearless are black wordmarks, so black carries the name and the fine pri
 - **Phone layout.** The builder scales the preview to fit a phone screen and keeps the header strip, buttons and client tabs tidy at narrow widths. Phone screenshots used for the check live in `mobile/`, which git ignores.
 - **Both and OGF tabs merged (8 October 2026).** The Both tab (Crossroads stacked over Fearless, steel accent, DIVISIONS OF footer) and the old OGF tab (OGF wordmark, steel accent, text footer) became one OGF tab: the OGF wordmark, orange accent, orange titles and links, both divisions named under the name, the Midland address by default and no footer. The `fearless-crossroads` templates were removed.
 - **Still open.** Company website and email domain are unknown, so the Website field is blank by default.
+
+## Security
+
+The kit has no third-party code: the build uses only Python's standard library and the builder page loads no JavaScript libraries, so there is nothing to update and no package for an attacker to poison. Reviewed 6 November 2026.
+
+**What protects the builder page**
+
+- Everything a person types is escaped before it goes into the signature. The Image folder field accepts only an `https://` address and falls back to the hosted default otherwise.
+- The page carries a Content-Security-Policy that lets the browser run one script only: the page's own, matched by a hash the build script computes. Injected code cannot run. Fonts may load from Google Fonts and nothing else is fetched.
+- `.nojekyll` tells GitHub Pages to serve the files exactly as committed.
+
+Because of the hash, **never edit `index.html` by hand**: the script would stop running. Edit `build/generator.template.html` and run the build.
+
+**What protects the hosting.** Every sent email loads its logos from this GitHub account, so the account is the thing to guard.
+
+- Keep two-factor sign-in on, ideally with a passkey.
+- Every few months, look through github.com/settings/sessions, `/settings/applications`, `/settings/tokens` and `/settings/keys` and remove anything unfamiliar or unused. Give tokens an expiry date.
+- Never rename or delete the account or the repository. The `rsty-shackleford.github.io` address would be released, and someone else could claim it and serve their own images into every email already sent.
+- Do not add GitHub Actions workflows unless there is a real need; the site deploys without any.
 
 ## Editing the design
 

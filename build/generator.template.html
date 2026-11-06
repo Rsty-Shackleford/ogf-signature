@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="/*__CSP__*/">
+<meta name="referrer" content="no-referrer">
 <title>OGF Email Signature Generator</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
 <style>
@@ -362,9 +364,13 @@ const EXAMPLE = { name: "John Doe", title: "Service Manager", mobile: "(432) 555
 let state = { div: "fearless", mode: "hosted", bg: "outline", dark: false };
 
 function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-function fill(s, map) { return s.replace(/\{\{(\w+)\}\}/g, (m, k) => (k in map ? map[k] : m)); }
+function fill(s, map) { return s.replace(/\{\{(\w+)\}\}/g, (m, k) => (Object.hasOwn(map, k) ? map[k] : m)); }
 function telHref(s) { const d = s.replace(/\D/g, ""); return d.length === 10 ? "+1" + d : (d ? "+" + d : ""); }
 function webHref(s) { s = s.trim(); if (!s) return ""; return /^https?:\/\//i.test(s) ? s : "https://" + s; }
+function imgBase(s) {   // the image folder must be an https address; anything else falls back to the hosted default
+  try { const u = new URL(s); if (u.protocol === "https:") return (u.origin + u.pathname).replace(/\/?$/, "/"); } catch (e) {}
+  return EXAMPLE.imgbase;
+}
 
 function values() {
   const v = {};
@@ -374,13 +380,13 @@ function values() {
 
 function buildSignature(v, mode) {
   const d = DIVISIONS[state.div];
-  const base = mode === "embedded" ? null : (v.imgbase || EXAMPLE.imgbase).replace(/\/?$/, "/");
+  const base = mode === "embedded" ? null : imgBase(v.imgbase);
   const file = (fn) => state.bg === "plain" ? fn : fn.replace(/\.png$/, state.bg === "tile" ? "-tile.png" : "-outline.png");
   const src = (fn) => mode === "embedded" ? IMAGES[file(fn)] : base + file(fn);
   const names = Array.isArray(d.name) ? d.name : [d.name];
   const map = { ACCENT: d.accent, TYPE: d.type };
   const imgs = d.logos.map(([fn, w, h, alt]) => {
-    const im = fill(PIECES.logo, { IMG_LOGO: src(fn), LOGO_W: String(w), LOGO_H: String(h), DIVISION: esc(alt) });
+    const im = fill(PIECES.logo, { IMG_LOGO: esc(src(fn)), LOGO_W: String(w), LOGO_H: String(h), DIVISION: esc(alt) });
     return v.web ? fill(PIECES.logo_link, { LOGO_IMG: im, WEBSITE_URL: esc(webHref(v.web)) }) : im;
   });
   const logo = imgs.length === 1 ? imgs[0]
@@ -400,7 +406,7 @@ function buildSignature(v, mode) {
   if (links.length) rows += fill(PIECES.row_links, { LINKS: links.join(PIECES.link_sep) });
   if (v.address) rows += fill(PIECES.row_address, { ADDRESS: esc(v.address) });
 
-  const footer = d.footer ? fill(d.footer_logo ? PIECES.footer_logo : PIECES.footer_plain, { IMG_MARK: src("ogf-mark.png"), FOOTER: esc(d.footer) }) : "";
+  const footer = d.footer ? fill(d.footer_logo ? PIECES.footer_logo : PIECES.footer_plain, { IMG_MARK: esc(src("ogf-mark.png")), FOOTER: esc(d.footer) }) : "";
   return fill(PIECES.outer, { LOGO: logo, ROWS: rows, FOOTER: footer, ACCENT: d.accent }).replace(/·/g, "&middot;");
 }
 
